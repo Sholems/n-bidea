@@ -5,6 +5,19 @@
 @section('content')
 <h1 class="h3 mb-4">Super Admin Dashboard</h1>
 
+@if($reviewQueues['awaiting_verification'] > 0)
+<div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-patch-exclamation-fill fs-4 me-3"></i>
+        <div>
+            <strong>{{ $reviewQueues['awaiting_verification'] }}</strong>
+            business(es) approved and waiting for your phone call or site visit before they can be marked verified.
+        </div>
+    </div>
+    <a href="#awaiting-verification" class="btn btn-warning btn-sm">Review Now</a>
+</div>
+@endif
+
 <div class="row g-3 mb-4">
     <div class="col-md">
         <div class="card text-bg-primary h-100">
@@ -75,6 +88,115 @@
     </div>
 </div>
 
+<div class="row g-3 mb-4">
+    <div class="col-md">
+        <a href="#awaiting-verification" class="card text-bg-warning h-100 text-decoration-none text-reset">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Awaiting Verification</h6>
+                <h2 class="mb-0">{{ $reviewQueues['awaiting_verification'] }}</h2>
+            </div>
+        </a>
+    </div>
+    <div class="col-md">
+        <a href="{{ route('admin.business-profiles.index') }}" class="card text-bg-warning h-100 text-decoration-none text-reset">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Directory Profiles Pending</h6>
+                <h2 class="mb-0">{{ $reviewQueues['profiles_pending_review'] }}</h2>
+            </div>
+        </a>
+    </div>
+    <div class="col-md">
+        <a href="{{ route('admin.staff.index') }}" class="card text-bg-warning h-100 text-decoration-none text-reset">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Staff Awaiting Review</h6>
+                <h2 class="mb-0">{{ $reviewQueues['staff_pending_review'] }}</h2>
+            </div>
+        </a>
+    </div>
+    <div class="col-md">
+        <a href="{{ route('admin.fees.index') }}" class="card text-bg-warning h-100 text-decoration-none text-reset">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Fees Awaiting Confirmation</h6>
+                <h2 class="mb-0">{{ $reviewQueues['fees_pending_confirmation'] }}</h2>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100" id="awaiting-verification">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Awaiting Your Verification</h5>
+                <span class="badge bg-secondary">{{ $reviewQueues['awaiting_verification'] }}</span>
+            </div>
+            <div class="card-body p-0">
+                @if($awaitingVerification->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Business Name</th>
+                                <th>Sector</th>
+                                <th>Approved</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($awaitingVerification as $business)
+                            <tr>
+                                <td>
+                                    <a href="{{ route('admin.businesses.show', $business) }}">{{ $business->business_name }}</a>
+                                </td>
+                                <td>{{ $business->sector->name ?? '—' }}</td>
+                                <td>{{ $business->updated_at->format('d M Y') }}</td>
+                                <td class="text-end">
+                                    <a href="{{ route('admin.businesses.show', $business) }}" class="btn btn-sm btn-warning">Verify</a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="text-center py-4">
+                    <i class="bi bi-check-circle fs-1 text-success"></i>
+                    <p class="text-muted mt-2 mb-0">Nothing awaiting verification.</p>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Verification Checks</h5>
+            </div>
+            <div class="card-body p-0">
+                @if($recentVerificationChecks->isNotEmpty())
+                <ul class="list-group list-group-flush">
+                    @foreach($recentVerificationChecks as $check)
+                    <li class="list-group-item px-3">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ route('admin.businesses.show', $check->business) }}" class="text-decoration-none">{{ $check->business->business_name }}</a>
+                            <span class="badge {{ $check->decision === 'verified' ? 'bg-success' : 'bg-secondary' }}">{{ $check->decision === 'verified' ? 'Verified' : 'Not verified' }}</span>
+                        </div>
+                        <small class="text-muted">{{ $check->method === 'site_visit' ? 'Site visit' : 'Phone call' }} by {{ $check->superAdmin->name ?? 'Super Admin' }} · {{ $check->checked_at->format('d M Y') }}</small>
+                    </li>
+                    @endforeach
+                </ul>
+                @else
+                <div class="text-center py-4">
+                    <i class="bi bi-telephone fs-1 text-muted"></i>
+                    <p class="text-muted mt-2 mb-0">No verification checks recorded yet.</p>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-lg-8 mb-4">
         <div class="card h-100">
@@ -127,6 +249,15 @@
                     </a>
                     <a href="{{ route('super-admin.sectors.index') }}" class="btn btn-outline-primary text-start">
                         <i class="bi bi-grid me-2"></i> Manage Sectors
+                    </a>
+                    <a href="{{ route('admin.business-profiles.index') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-shop me-2"></i> Directory Profiles
+                    </a>
+                    <a href="{{ route('admin.staff.index') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-person-badge me-2"></i> Staff Clearance
+                    </a>
+                    <a href="{{ route('super-admin.staff-document-types.index') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-person-vcard me-2"></i> Staff Document Types
                     </a>
                     <a href="{{ route('super-admin.reports.index') }}" class="btn btn-outline-primary text-start">
                         <i class="bi bi-bar-chart me-2"></i> View Reports

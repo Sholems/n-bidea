@@ -24,8 +24,10 @@ class BusinessPolicy
     }
 
     /**
-     * Owners may only change a business while it is still in their hands;
-     * once submitted or approved, changes must go through review.
+     * Owners may edit their business except while a decision is actively
+     * pending (submitted/under_review, so the reviewer isn't looking at a
+     * moving target) or the business is in a dead-end state with no defined
+     * recovery path (rejected, suspended).
      */
     public function update(User $user, Business $business): bool
     {
@@ -34,7 +36,7 @@ class BusinessPolicy
         }
 
         return $business->user_id === $user->id
-            && in_array($business->status, ['draft', 'correction_required'], true);
+            && in_array($business->status, ['draft', 'correction_required', 'approved', 'verified', 'expired'], true);
     }
 
     public function manageProfile(User $user, Business $business): bool

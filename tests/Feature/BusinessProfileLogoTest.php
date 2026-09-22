@@ -38,6 +38,24 @@ class BusinessProfileLogoTest extends TestCase
             ->assertHeader('content-type', 'image/png');
     }
 
+    public function test_logo_appears_on_the_owners_business_detail_page(): void
+    {
+        Storage::fake('private');
+        $owner = User::factory()->create();
+        $business = Business::factory()->approved()->for($owner)->create();
+        BusinessProfile::factory()->create([
+            'business_id' => $business->id,
+            'logo_path' => 'business-logos/detail-page.png',
+            'logo_mime_type' => 'image/png',
+        ]);
+        Storage::disk('private')->put('business-logos/detail-page.png', 'image-content');
+
+        $this->actingAs($owner)
+            ->get(route('business-owner.businesses.show', $business))
+            ->assertOk()
+            ->assertSee(route('business-owner.businesses.profile.logo', $business), false);
+    }
+
     public function test_public_logo_is_available_only_for_an_approved_profile(): void
     {
         Storage::fake('private');

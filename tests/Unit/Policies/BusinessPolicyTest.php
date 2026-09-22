@@ -18,18 +18,18 @@ class BusinessPolicyTest extends TestCase
         return [
             'draft' => ['draft', true],
             'correction required' => ['correction_required', true],
+            'approved' => ['approved', true],
+            'verified' => ['verified', true],
+            'expired' => ['expired', true],
             'submitted' => ['submitted', false],
             'under review' => ['under_review', false],
-            'approved' => ['approved', false],
-            'verified' => ['verified', false],
             'rejected' => ['rejected', false],
-            'expired' => ['expired', false],
             'suspended' => ['suspended', false],
         ];
     }
 
     #[DataProvider('ownerUpdateByStatus')]
-    public function test_owner_can_update_business_only_while_draft_or_awaiting_correction(string $status, bool $allowed): void
+    public function test_owner_can_update_business_unless_a_decision_is_pending_or_it_is_a_dead_end_status(string $status, bool $allowed): void
     {
         [$owner, $business] = $this->ownerAndBusiness($status);
 

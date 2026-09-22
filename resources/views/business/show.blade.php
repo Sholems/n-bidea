@@ -6,11 +6,11 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0">Business Details</h1>
     <div class="d-flex gap-2">
-        @if(in_array($business->status, ['draft', 'correction_required']))
+        @can('update', $business)
             <a href="{{ route('business-owner.businesses.edit', $business) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-pencil"></i> Edit
             </a>
-        @endif
+        @endcan
         @if(in_array($business->status, ['approved', 'verified']))
             <a href="{{ route('business-owner.businesses.profile.show', $business) }}" class="btn btn-outline-success">
                 <i class="bi bi-shop"></i> Public Listing
@@ -88,6 +88,11 @@
                 <h5 class="mb-0"><i class="bi bi-building me-2"></i>Business Information</h5>
             </div>
             <div class="card-body">
+                @if($business->profile?->logo_path)
+                    <div class="mb-3">
+                        <img src="{{ route('business-owner.businesses.profile.logo', $business) }}" alt="{{ $business->business_name }} logo" class="border rounded" style="width: 96px; height: 96px; object-fit: contain; background: #fff;">
+                    </div>
+                @endif
                 <div class="row g-3">
                     <div class="col-sm-6">
                         <label class="form-label text-muted small">Business Name</label>
