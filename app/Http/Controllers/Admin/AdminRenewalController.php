@@ -38,8 +38,8 @@ class AdminRenewalController extends Controller
     {
         $this->authorize('is-admin-or-super');
 
-        $this->retryOnUniqueViolation(function () use ($renewalRequest): void {
-            DB::transaction(function () use ($renewalRequest): void {
+        $approved = $this->retryOnUniqueViolation(function () use ($renewalRequest): RenewalRequest {
+            return DB::transaction(function () use ($renewalRequest): RenewalRequest {
                 $locked = RenewalRequest::whereKey($renewalRequest->getKey())->lockForUpdate()->firstOrFail();
 
                 abort_if($locked->status !== 'pending', 422, 'This renewal request has already been processed.');
@@ -58,7 +58,7 @@ class AdminRenewalController extends Controller
                 $business->update([
                     'verification_expires_at' => $newExpiryDate,
                     'verified_at' => now(),
-                    'status' => 'approved',
+                    'status' => 'verified',
                 ]);
 
                 $certificate = CertificateNumberService::issueForBusiness($business->refresh(), auth()->user(), $newExpiryDate);
@@ -75,9 +75,11 @@ class AdminRenewalController extends Controller
                     auditable: $locked,
                 );
 
-                $locked->requester->notify(new RenewalRequestDecisionNotification($locked->refresh(), 'approved'));
+                return $locked->refresh();
             }, 5);
         });
+
+        $approved->requester->notify(new RenewalRequestDecisionNotification($approved, 'approved'));
 
         return back()->with('success', 'Renewal request approved successfully.');
     }

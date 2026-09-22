@@ -10,7 +10,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <i class="bi bi-building text-primary" style="font-size: 2.5rem;"></i>
+                            <x-brand-logo variant="auth" class="mx-auto mb-3" />
                             <h3 class="mt-2 fw-bold">Welcome Back</h3>
                             <p class="text-muted">Sign in to your NB-CCI account</p>
                         </div>
@@ -50,7 +50,6 @@
                                            name="email"
                                            value="{{ old('email') }}"
                                            required
-                                           autofocus
                                            placeholder="you@example.com">
                                 </div>
                                 @error('email')

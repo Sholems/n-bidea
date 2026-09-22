@@ -29,6 +29,7 @@ class BusinessFactory extends Factory
             'nrs_number' => fake()->optional()->bothify('NRS-######'),
             'nin' => fake()->optional()->numerify('###########'),
             'business_type' => 'limited_liability_company',
+            'country_code' => 'NG',
             'sector_id' => Sector::factory(),
             'description' => fake()->sentence(),
             'address' => fake()->streetAddress(),
@@ -61,6 +62,16 @@ class BusinessFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'registry_number' => 'NBCCI-NG-'.now()->format('Y').'-'.fake()->unique()->numerify('######'),
             'status' => 'approved',
+            'verified_at' => null,
+            'verification_expires_at' => null,
+        ]);
+    }
+
+    public function verified(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'registry_number' => 'NBCCI-NG-'.now()->format('Y').'-'.fake()->unique()->numerify('######'),
+            'status' => 'verified',
             'verified_at' => now(),
             'verification_expires_at' => now()->addYear(),
         ]);

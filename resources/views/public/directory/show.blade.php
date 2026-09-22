@@ -7,14 +7,34 @@
     <div class="container py-4">
         <div class="row align-items-center g-4">
             <div class="col-lg-8">
-                <div class="section-kicker text-warning mb-2">Verified Business Listing</div>
-                <h1 class="display-5 fw-bold mb-3">{{ $profile->business->business_name }}</h1>
-                <p class="lead mb-0">{{ $profile->summary }}</p>
+                <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-4">
+                    @if($profile->logo_path)
+                        <img src="{{ route('public.directory.logo', $profile) }}" alt="{{ $profile->business->business_name }} logo" class="bg-white border rounded flex-shrink-0" style="width: 128px; height: 128px; object-fit: contain;">
+                    @endif
+                    <div>
+                        <div class="section-kicker text-warning mb-2">{{ $profile->business->is_verified ? 'Verified Business Listing' : 'Registered Business Listing' }}</div>
+                        <h1 class="display-5 fw-bold mb-3">
+                            {{ $profile->business->business_name }}
+                            @if($profile->business->is_verified)
+                                <i class="bi bi-patch-check-fill text-warning fs-2 ms-1" title="Verified by NB-CCI"></i>
+                            @endif
+                        </h1>
+                        <p class="lead mb-0">{{ $profile->summary }}</p>
+                    </div>
+                </div>
             </div>
             <div class="col-lg-4">
                 <div class="bg-white text-dark rounded-2 p-4 shadow-sm">
                     <div class="small text-muted">Registry Number</div>
                     <div class="fw-bold mb-3">{{ $profile->business->registry_number }}</div>
+                    <div class="small text-muted">Verification</div>
+                    <div class="fw-bold mb-3">
+                        @if($profile->business->is_verified)
+                            <span class="text-success"><i class="bi bi-patch-check-fill me-1"></i>Verified by NB-CCI</span>
+                        @else
+                            <span>Registration approved</span>
+                        @endif
+                    </div>
                     <div class="small text-muted">Sector</div>
                     <div class="fw-bold mb-3">{{ $profile->business->sector->name ?? 'General Trade' }}</div>
                     <div class="small text-muted">Location</div>

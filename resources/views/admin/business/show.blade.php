@@ -89,7 +89,6 @@
                 </div>
             </div>
         </div>
-
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Location</h5>
@@ -262,6 +261,68 @@
             </div>
         </div>
 
+        @if($business->status === 'approved')
+            <div class="card mb-4 border-warning">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-patch-check me-2"></i>Business Verification</h5>
+                </div>
+                <div class="card-body">
+                    @if(auth()->user()->role === 'super_admin')
+                        <p class="text-muted small">Record the independent check completed before granting the public verification mark.</p>
+                        <form action="{{ route('super-admin.businesses.verification.store', $business) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="method" class="form-label fw-semibold">Verification Method</label>
+                                <select name="method" id="method" class="form-select @error('method') is-invalid @enderror" required>
+                                    <option value="">Select method...</option>
+                                    <option value="phone_call" @selected(old('method') === 'phone_call')>Phone call</option>
+                                    <option value="site_visit" @selected(old('method') === 'site_visit')>Site visit</option>
+                                </select>
+                                @error('method')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Decision</label>
+                                <div class="d-flex flex-column gap-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="decision" id="verification_verified" value="verified" @checked(old('decision') === 'verified') required>
+                                        <label class="form-check-label" for="verification_verified">Grant verified status</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="decision" id="verification_not_verified" value="not_verified" @checked(old('decision') === 'not_verified')>
+                                        <label class="form-check-label" for="verification_not_verified">Do not verify</label>
+                                    </div>
+                                </div>
+                                @error('decision')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="mb-3">
+                                <label for="verification_note" class="form-label fw-semibold">Call or Visit Notes</label>
+                                <textarea name="note" id="verification_note" class="form-control @error('note') is-invalid @enderror" rows="4" required>{{ old('note') }}</textarea>
+                                @error('note')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-check2-circle me-1"></i> Record Verification Decision
+                            </button>
+                        </form>
+                    @else
+                        <p class="mb-0 text-muted">Registration is approved. A Super Admin must complete a phone call or site visit before the verification mark can be granted.</p>
+                    @endif
+                </div>
+            </div>
+        @elseif($business->status === 'verified')
+            <div class="card mb-4 border-success">
+                <div class="card-body">
+                    <div class="d-flex gap-3 align-items-center">
+                        <i class="bi bi-patch-check-fill text-success fs-2"></i>
+                        <div>
+                            <div class="fw-semibold">Verified by NB-CCI</div>
+                            <div class="text-muted small">Valid until {{ $business->verification_expires_at?->format('d M Y') ?? 'not specified' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if(in_array($business->status, ['draft', 'submitted', 'under_review', 'correction_required'], true))
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Review Decision</h5>
@@ -308,6 +369,7 @@
                 </form>
             </div>
         </div>
+        @endif
 
         @if($verificationReviews->isNotEmpty())
             <div class="card mb-4">
@@ -333,6 +395,28 @@
                                     <small class="text-muted d-block mt-1">{{ Str::limit($review->note, 80) }}</small>
                                 @endif
                             </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        @if($business->verificationChecks->isNotEmpty())
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-telephone-check me-2"></i>Verification Check History</h5>
+                </div>
+                <div class="card-body">
+                    @foreach($business->verificationChecks->sortByDesc('checked_at') as $check)
+                        <div class="mb-3 {{ !$loop->last ? 'border-bottom pb-3' : '' }}">
+                            <div class="d-flex justify-content-between gap-2 mb-1">
+                                <span class="badge {{ $check->decision === 'verified' ? 'bg-success' : 'bg-secondary' }}">
+                                    {{ $check->decision === 'verified' ? 'Verified' : 'Not verified' }}
+                                </span>
+                                <small class="text-muted">{{ $check->checked_at->format('d M Y, h:i A') }}</small>
+                            </div>
+                            <div class="small fw-semibold">{{ $check->method === 'site_visit' ? 'Site visit' : 'Phone call' }} by {{ $check->superAdmin->name ?? 'Super Admin' }}</div>
+                            <div class="small text-muted mt-1">{{ $check->note }}</div>
                         </div>
                     @endforeach
                 </div>

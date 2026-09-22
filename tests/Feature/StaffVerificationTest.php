@@ -16,7 +16,7 @@ class StaffVerificationTest extends TestCase
 
     public function test_guest_can_verify_staff_by_number_without_private_fields(): void
     {
-        $staffMember = StaffMember::factory()->approved()->for(Business::factory()->approved()->state([
+        $staffMember = StaffMember::factory()->approved()->for(Business::factory()->verified()->state([
             'business_name' => 'Seme Freight Ltd',
         ]))->create([
             'full_name' => 'Ibrahim Musa',
@@ -69,7 +69,7 @@ class StaffVerificationTest extends TestCase
 
     public function test_business_verification_still_works_alongside_staff_lookup(): void
     {
-        $business = Business::factory()->approved()->create(['business_name' => 'Porto Novo Foods']);
+        $business = Business::factory()->verified()->create(['business_name' => 'Porto Novo Foods']);
 
         $this->post(route('public.verification.search'), ['query' => $business->registry_number])
             ->assertOk()
@@ -97,7 +97,7 @@ class StaffVerificationTest extends TestCase
     public function test_government_official_sees_clearance_and_the_view_is_audit_logged(): void
     {
         $official = User::factory()->create(['role' => 'government_official']);
-        $staffMember = StaffMember::factory()->approved()->create();
+        $staffMember = StaffMember::factory()->approved()->for(Business::factory()->verified())->create();
         StaffDocument::factory()->accepted()->for($staffMember)->create();
 
         $this->actingAs($official)

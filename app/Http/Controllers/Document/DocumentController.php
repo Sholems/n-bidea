@@ -7,6 +7,7 @@ use App\Http\Requests\DocumentUploadRequest;
 use App\Models\Business;
 use App\Models\BusinessDocument;
 use App\Services\AuditService;
+use App\Services\BusinessDocumentRequirementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -14,13 +15,19 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentController extends Controller
 {
+    public function __construct(
+        private readonly BusinessDocumentRequirementService $documentRequirements,
+    ) {}
+
     public function index(Business $business): View
     {
         $this->authorize('view', $business);
 
         $business->load('documents.documentType');
+        $requirementSummary = $this->documentRequirements->summary($business);
+        $documentTypes = $this->documentRequirements->applicableTypes($business);
 
-        return view('documents.index', compact('business'));
+        return view('documents.index', compact('business', 'documentTypes', 'requirementSummary'));
     }
 
     public function store(DocumentUploadRequest $request, Business $business): RedirectResponse

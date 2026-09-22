@@ -106,6 +106,10 @@
                         <div class="fw-semibold">{{ $business->business_type ?? '—' }}</div>
                     </div>
                     <div class="col-sm-6">
+                        <label class="form-label text-muted small">Country of Registration</label>
+                        <div class="fw-semibold">{{ \App\Models\Business::COUNTRIES[$business->country_code] ?? $business->country_code }}</div>
+                    </div>
+                    <div class="col-sm-6">
                         <label class="form-label text-muted small">Sector</label>
                         <div class="fw-semibold">{{ $business->sector->name ?? '—' }}</div>
                     </div>
@@ -264,12 +268,24 @@
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-file-earmark me-2"></i>Documents</h5>
-        @if(in_array($business->status, ['draft', 'correction_required']))
-            <a href="{{ route('business-owner.businesses.documents.index', $business) }}" class="btn btn-sm btn-primary">
-                <i class="bi bi-upload"></i> Upload Document
-            </a>
-        @endif
+        <a href="{{ route('business-owner.businesses.documents.index', $business) }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-folder2-open"></i> Manage Documents
+        </a>
     </div>
+    @if(in_array($business->status, ['draft', 'correction_required']))
+        <div class="card-body border-bottom">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-2">
+                <div>
+                    <strong>Document readiness</strong>
+                    <div class="text-muted small">{{ $requirementSummary['uploaded_required_count'] }} of {{ $requirementSummary['required_count'] }} required documents uploaded</div>
+                </div>
+                <span class="fw-semibold text-primary">{{ $requirementSummary['completion_percentage'] }}%</span>
+            </div>
+            <div class="progress" role="progressbar" aria-label="Required document completion" aria-valuenow="{{ $requirementSummary['completion_percentage'] }}" aria-valuemin="0" aria-valuemax="100" style="height: 0.5rem;">
+                <div class="progress-bar" style="width: {{ $requirementSummary['completion_percentage'] }}%"></div>
+            </div>
+        </div>
+    @endif
     <div class="card-body p-0">
         @if($documents->isEmpty())
             <div class="text-center py-4">

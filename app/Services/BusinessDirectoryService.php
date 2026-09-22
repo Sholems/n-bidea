@@ -20,10 +20,10 @@ class BusinessDirectoryService
         return $business->profile()->firstOrCreate(
             ['business_id' => $business->id],
             [
-                'summary' => $business->description ?: "{$business->business_name} is an NB-CCI verified business.",
-                'services' => $business->trade_activity ?: $business->description ?: 'Verified business services',
+                'summary' => $business->description ?: "{$business->business_name} is an NB-CCI registered business.",
+                'services' => $business->trade_activity ?: $business->description ?: 'Registered business services',
                 'operating_locations' => $locations ?: 'Nigeria-Benin trade corridor',
-                'certifications' => 'NB-CCI verified business',
+                'certifications' => null,
                 'website' => $business->website,
                 'contact_preference' => 'Request an introduction through the NB-CCI directory.',
                 'status' => 'approved',

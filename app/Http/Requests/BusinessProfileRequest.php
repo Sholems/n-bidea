@@ -26,6 +26,7 @@ class BusinessProfileRequest extends FormRequest
             'certifications' => ['nullable', 'string', 'max:700'],
             'website' => ['nullable', 'url', 'max:255'],
             'contact_preference' => ['nullable', 'string', 'max:500'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:max_width=2400,max_height=2400'],
         ];
     }
 }

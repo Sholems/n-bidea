@@ -16,6 +16,8 @@ class BusinessProfile extends Model
 
     protected $fillable = [
         'business_id',
+        'logo_path',
+        'logo_mime_type',
         'summary',
         'services',
         'operating_locations',

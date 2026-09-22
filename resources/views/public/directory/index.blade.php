@@ -7,9 +7,9 @@
     <div class="container py-4">
         <div class="row align-items-center g-4">
             <div class="col-lg-8">
-                <div class="section-kicker text-warning mb-2">Verified Business Directory</div>
+                <div class="section-kicker text-warning mb-2">NB-CCI Business Directory</div>
                 <h1 class="display-5 fw-bold mb-3">Find credible Nigeria-Benin corridor partners.</h1>
-                <p class="lead mb-0">Browse verified NB-CCI business listings across sectors, locations, services, and trade interests.</p>
+                <p class="lead mb-0">Browse approved NB-CCI listings and identify businesses that have completed an additional verification call or site visit.</p>
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
                     <i class="bi bi-search fs-1 text-muted"></i>
-                    <h5 class="text-muted mt-3">No Verified Businesses Found</h5>
+                    <h5 class="text-muted mt-3">No Businesses Found</h5>
                     <p class="text-muted mb-0">Check the name or registry number, clear the filters, and try again.</p>
                 </div>
             </div>
@@ -70,11 +70,24 @@
                         <article class="card h-100 border-0 shadow-sm">
                             <div class="card-body d-flex flex-column">
                                 <div class="d-flex justify-content-between gap-3 mb-3">
-                                    <div>
+                                    <div class="d-flex gap-3">
+                                        @if($profile->logo_path)
+                                            <img src="{{ route('public.directory.logo', $profile) }}" alt="{{ $profile->business->business_name }} logo" class="border rounded flex-shrink-0" style="width: 64px; height: 64px; object-fit: contain; background: #fff;">
+                                        @else
+                                            <div class="border rounded d-flex align-items-center justify-content-center text-muted flex-shrink-0" style="width: 64px; height: 64px;">
+                                                <i class="bi bi-building fs-4"></i>
+                                            </div>
+                                        @endif
+                                        <div>
                                         <h2 class="h5 mb-1">{{ $profile->business->business_name }}</h2>
                                         <div class="text-muted small">{{ $profile->business->sector->name ?? 'General Trade' }}</div>
+                                        </div>
                                     </div>
-                                    <span class="badge bg-success align-self-start">Verified</span>
+                                    @if($profile->business->is_verified)
+                                        <span class="badge bg-success align-self-start"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
+                                    @else
+                                        <span class="badge bg-light text-dark border align-self-start">Registered</span>
+                                    @endif
                                 </div>
                                 <p class="text-muted">{{ $profile->services }}</p>
                                 <div class="small text-muted mb-3">

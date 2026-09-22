@@ -86,7 +86,7 @@ class UserSeeder extends Seeder
                 'contact_person_email' => 'business@example.com',
                 'trade_activity' => 'Import and Export',
                 'border_route' => 'Apapa Port',
-                'status' => 'approved',
+                'status' => 'verified',
                 'verified_at' => now(),
                 'verification_expires_at' => now()->addYear(),
             ],

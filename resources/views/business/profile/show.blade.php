@@ -52,6 +52,12 @@
                     <h5 class="mb-0"><i class="bi bi-globe2 me-2"></i>Public Listing Content</h5>
                 </div>
                 <div class="card-body">
+                    @if($profile->logo_path)
+                        <div class="mb-4">
+                            <small class="text-muted d-block mb-2">Business Logo</small>
+                            <img src="{{ route('business-owner.businesses.profile.logo', $business) }}" alt="{{ $business->business_name }} logo" class="border rounded" style="width: 120px; height: 120px; object-fit: contain; background: #fff;">
+                        </div>
+                    @endif
                     <div class="mb-3">
                         <small class="text-muted d-block">Summary</small>
                         <p class="mb-0">{{ $profile->summary }}</p>
@@ -98,7 +104,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-building-check me-2"></i>Verified Business</h5>
+                    <h5 class="mb-0"><i class="bi {{ $business->is_verified ? 'bi-patch-check-fill' : 'bi-building-check' }} me-2"></i>{{ $business->is_verified ? 'Verified Business' : 'Approved Business' }}</h5>
                 </div>
                 <div class="card-body">
                     <small class="text-muted d-block">Registry Number</small>

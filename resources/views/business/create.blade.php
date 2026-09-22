@@ -56,6 +56,18 @@
                     @enderror
                 </div>
                 <div class="col-md-6">
+                    <label for="country_code" class="form-label">Country of Registration <span class="text-danger">*</span></label>
+                    <select name="country_code" id="country_code" class="form-select @error('country_code') is-invalid @enderror" required>
+                        <option value="">Select Country</option>
+                        @foreach($countries as $code => $country)
+                            <option value="{{ $code }}" @selected(old('country_code') === $code)>{{ $country }}</option>
+                        @endforeach
+                    </select>
+                    @error('country_code')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
                     <label for="sector_id" class="form-label">Sector <span class="text-danger">*</span></label>
                     <select name="sector_id" id="sector_id" class="form-select @error('sector_id') is-invalid @enderror" required>
                         <option value="">Select Sector</option>

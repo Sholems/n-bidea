@@ -30,7 +30,7 @@ class ExpireVerifications extends Command
         ];
 
         $businessIds = Business::query()
-            ->whereIn('status', ['approved', 'verified'])
+            ->where('status', 'verified')
             ->whereNotNull('verification_expires_at')
             ->where('verification_expires_at', '<=', $now)
             ->pluck('id');
@@ -44,7 +44,7 @@ class ExpireVerifications extends Command
                         return;
                     }
 
-                    if (! in_array($business->status, ['approved', 'verified'], true)) {
+                    if ($business->status !== 'verified') {
                         return;
                     }
 

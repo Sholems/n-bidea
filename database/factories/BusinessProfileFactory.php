@@ -25,7 +25,7 @@ class BusinessProfileFactory extends Factory
             'services' => fake()->sentence(),
             'operating_locations' => 'Badagry, Seme, Cotonou',
             'trade_interests' => fake()->sentence(),
-            'certifications' => 'NB-CCI verified business',
+            'certifications' => 'NB-CCI registered business',
             'website' => fake()->optional()->url(),
             'contact_preference' => 'Use portal introduction only.',
             'status' => 'pending',

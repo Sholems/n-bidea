@@ -50,4 +50,16 @@ class PublicPagesTest extends TestCase
         $this->assertTrue(config('filesystems.disks.private.throw'));
         $this->assertFalse(config('filesystems.disks.private.use_path_style_endpoint'));
     }
+
+    public function test_public_and_authentication_layouts_use_the_official_logo(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee(asset('images/nb-cci-logo.jpeg'), false)
+            ->assertSee('Nigeria-Benin Chamber of Commerce and Industry');
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee(asset('images/nb-cci-logo.jpeg'), false);
+    }
 }

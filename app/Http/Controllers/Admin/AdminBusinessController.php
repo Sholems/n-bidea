@@ -9,7 +9,6 @@ use App\Models\VerificationReview;
 use App\Notifications\BusinessReviewDecisionNotification;
 use App\Services\AuditService;
 use App\Services\BusinessDirectoryService;
-use App\Services\CertificateNumberService;
 use App\Services\RegistryNumberService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -47,7 +46,7 @@ class AdminBusinessController extends Controller
     {
         $this->authorize('view', $business);
 
-        $business->load(['documents.documentType', 'verificationReviews.admin', 'fees', 'user', 'sector']);
+        $business->load(['documents.documentType', 'verificationReviews.admin', 'verificationChecks.superAdmin', 'fees', 'user', 'sector']);
 
         $documents = $business->documents;
         $verificationReviews = $business->verificationReviews;
@@ -63,8 +62,8 @@ class AdminBusinessController extends Controller
         $decision = $request->input('decision');
         $note = $request->input('note');
 
-        $this->retryOnUniqueViolation(function () use ($business, $decision, $note): void {
-            DB::transaction(function () use ($business, $decision, $note): void {
+        $reviewed = $this->retryOnUniqueViolation(function () use ($business, $decision, $note): Business {
+            return DB::transaction(function () use ($business, $decision, $note): Business {
                 $locked = Business::whereKey($business->getKey())->lockForUpdate()->firstOrFail();
 
                 abort_unless(
@@ -79,31 +78,18 @@ class AdminBusinessController extends Controller
                     'rejected' => 'rejected',
                     default => 'correction_required',
                 };
-                $expiresAt = null;
-
                 if ($decision === 'approved') {
-                    $expiresAt = now()->addYear();
-
                     $locked->update([
                         'status' => 'approved',
                         'registry_number' => $locked->registry_number ?? RegistryNumberService::generate(),
-                        'verified_at' => now(),
-                        'verification_expires_at' => $expiresAt,
+                        'verified_at' => null,
+                        'verification_expires_at' => null,
                     ]);
 
-                    $certificate = CertificateNumberService::issueForBusiness($locked->refresh(), auth()->user(), $expiresAt);
                     $this->businessDirectoryService->publishDefaultListing($locked, auth()->user());
-
-                    AuditService::logAction(
-                        action: 'certificate.issued',
-                        description: "Certificate '{$certificate->certificate_number}' issued for business '{$locked->business_name}'",
-                        auditable: $certificate,
-                    );
                 } else {
                     $locked->update(['status' => $newStatus]);
                 }
-
-                $locked->user->notify(new BusinessReviewDecisionNotification($locked->refresh(), $newStatus, $note));
 
                 VerificationReview::create([
                     'business_id' => $locked->id,
@@ -112,7 +98,7 @@ class AdminBusinessController extends Controller
                     'note' => $note,
                     'previous_status' => $previousStatus,
                     'new_status' => $newStatus,
-                    'expires_at' => $expiresAt,
+                    'expires_at' => null,
                 ]);
 
                 AuditService::logAction(
@@ -120,8 +106,12 @@ class AdminBusinessController extends Controller
                     description: "Business '{$locked->business_name}' review decision: {$decision}",
                     auditable: $locked,
                 );
+
+                return $locked->refresh();
             }, 5);
         });
+
+        $reviewed->user->notify(new BusinessReviewDecisionNotification($reviewed, $reviewed->status, $note));
 
         return back()->with('success', 'Business review submitted successfully.');
     }

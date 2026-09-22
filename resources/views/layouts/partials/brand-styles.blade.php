@@ -52,4 +52,46 @@
         outline: 3px solid rgba(255, 210, 30, 0.85);
         outline-offset: 2px;
     }
+    .brand-logo {
+        display: inline-flex;
+        flex: 0 0 auto;
+        overflow: hidden;
+        background-color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.42);
+        border-radius: 0.25rem;
+        line-height: 0;
+    }
+    .brand-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 48%;
+    }
+    .brand-logo--header {
+        width: 10rem;
+        height: 3.75rem;
+    }
+    .brand-logo--sidebar {
+        width: 13.25rem;
+        height: 5rem;
+    }
+    .brand-logo--footer {
+        width: 12rem;
+        height: 4.5rem;
+    }
+    .brand-logo--auth {
+        width: min(100%, 17.5rem);
+        height: 6.5rem;
+        border-color: var(--ncci-border);
+    }
+    @media (max-width: 575.98px) {
+        .brand-logo--header {
+            width: 8.75rem;
+            height: 3.25rem;
+        }
+        .brand-logo--auth {
+            width: min(100%, 15rem);
+            height: 5.625rem;
+        }
+    }
 </style>
