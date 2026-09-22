@@ -43,9 +43,11 @@ class PublicPagesTest extends TestCase
         }
     }
 
-    public function test_private_filesystem_disk_is_configured_for_sensitive_uploads(): void
+    public function test_private_filesystem_disk_is_configured_for_cloudflare_r2(): void
     {
-        $this->assertSame('local', config('filesystems.disks.private.driver'));
-        $this->assertSame(storage_path('app/private'), config('filesystems.disks.private.root'));
+        $this->assertSame('s3', config('filesystems.disks.private.driver'));
+        $this->assertSame('private', config('filesystems.disks.private.visibility'));
+        $this->assertTrue(config('filesystems.disks.private.throw'));
+        $this->assertFalse(config('filesystems.disks.private.use_path_style_endpoint'));
     }
 }
