@@ -11,6 +11,7 @@ use App\Services\AuditService;
 use App\Services\BusinessDocumentRequirementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class BusinessController extends Controller
@@ -54,7 +55,7 @@ class BusinessController extends Controller
     {
         $this->authorize('view', $business);
 
-        $business->load(['documents.documentType', 'sector']);
+        $business->load(['documents.documentType', 'sector', 'profile']);
 
         $documents = $business->documents;
         $requirementSummary = $this->documentRequirements->summary($business);
@@ -72,11 +73,44 @@ class BusinessController extends Controller
         return view('business.edit', compact('business', 'sectors', 'countries'));
     }
 
+    /**
+     * Statuses in which the business has already cleared review at least
+     * once. Editing from one of these sends it back through admin review
+     * rather than silently changing already-reviewed facts.
+     */
+    private const REVIEWED_STATUSES = ['approved', 'verified', 'expired'];
+
     public function update(BusinessUpdateRequest $request, Business $business): RedirectResponse
     {
         $this->authorize('update', $business);
 
-        $business->update($request->validated());
+        $wasReviewed = in_array($business->status, self::REVIEWED_STATUSES, true);
+
+        DB::transaction(function () use ($business, $request, $wasReviewed): void {
+            $locked = Business::whereKey($business->getKey())->lockForUpdate()->firstOrFail();
+
+            $locked->update($request->validated());
+
+            if ($wasReviewed) {
+                $locked->update([
+                    'status' => 'submitted',
+                    'verified_at' => null,
+                    'verification_expires_at' => null,
+                ]);
+            }
+        });
+
+        $business->refresh();
+
+        if ($wasReviewed) {
+            AuditService::logAction(
+                action: 'business.resubmitted_for_review',
+                description: "Business '{$business->business_name}' edited after approval and sent back for review",
+                auditable: $business,
+            );
+
+            return back()->with('success', 'Business updated. Your changes have been sent back for review, and the verified mark is on hold until a reviewer confirms them.');
+        }
 
         AuditService::logAction(
             action: 'business.updated',

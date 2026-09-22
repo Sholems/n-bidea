@@ -166,4 +166,28 @@ class CertificateVerificationTest extends TestCase
             ->get(route('business-owner.certificates.show', $certificate))
             ->assertForbidden();
     }
+
+    public function test_certificate_stops_verifying_once_the_owner_edits_the_business(): void
+    {
+        $owner = User::factory()->create();
+        $business = Business::factory()->verified()->for($owner)->create([
+            'business_name' => 'Lagos Benin Movers',
+        ]);
+        $certificate = Certificate::factory()->for($business)->active()->create([
+            'certificate_number' => 'NBCCI-CERT-2026-000555',
+        ]);
+
+        $this->post(route('public.verification.search'), ['query' => $certificate->certificate_number])
+            ->assertOk()
+            ->assertSeeText('Certificate Verified');
+
+        $this->actingAs($owner)
+            ->put(route('business-owner.businesses.update', $business), ['phone' => '08099999999']);
+
+        $this->assertFalse($certificate->fresh()->isValid());
+
+        $this->post(route('public.verification.search'), ['query' => $certificate->certificate_number])
+            ->assertOk()
+            ->assertSeeText('Certificate Not Valid');
+    }
 }

@@ -23,14 +23,6 @@
         </div>
     </div>
     <div class="col-md">
-        <div class="card text-bg-warning h-100">
-            <div class="card-body">
-                <h6 class="card-title text-uppercase opacity-75">Under Review</h6>
-                <h2 class="mb-0">{{ $counts['under_review'] }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md">
         <div class="card text-bg-danger h-100">
             <div class="card-body">
                 <h6 class="card-title text-uppercase opacity-75">Correction Required</h6>
@@ -43,6 +35,14 @@
             <div class="card-body">
                 <h6 class="card-title text-uppercase opacity-75">Approved</h6>
                 <h2 class="mb-0">{{ $counts['approved'] }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md">
+        <div class="card text-bg-success h-100">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Verified</h6>
+                <h2 class="mb-0">{{ $counts['verified'] }}</h2>
             </div>
         </div>
     </div>
@@ -65,13 +65,40 @@
             </div>
         </div>
     </div>
+</div>
+
+<div class="row g-3 mb-4">
     <div class="col-md">
-        <div class="card text-bg-success h-100">
+        <a href="{{ route('admin.fees.index') }}" class="card text-bg-warning h-100 text-decoration-none text-reset">
             <div class="card-body">
-                <h6 class="card-title text-uppercase opacity-75">Verified</h6>
-                <h2 class="mb-0">{{ $counts['verified'] }}</h2>
+                <h6 class="card-title text-uppercase opacity-75">Fees Awaiting Confirmation</h6>
+                <h2 class="mb-0">{{ $operationalCounts['fees_pending_confirmation'] }}</h2>
             </div>
-        </div>
+        </a>
+    </div>
+    <div class="col-md">
+        <a href="{{ route('admin.renewals.index') }}" class="card text-bg-warning h-100 text-decoration-none text-reset">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Renewals Pending</h6>
+                <h2 class="mb-0">{{ $operationalCounts['renewals_pending'] }}</h2>
+            </div>
+        </a>
+    </div>
+    <div class="col-md">
+        <a href="{{ route('admin.staff.index') }}" class="card text-bg-warning h-100 text-decoration-none text-reset">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Staff Awaiting Review</h6>
+                <h2 class="mb-0">{{ $operationalCounts['staff_pending_review'] }}</h2>
+            </div>
+        </a>
+    </div>
+    <div class="col-md">
+        <a href="{{ route('admin.business-profiles.index') }}" class="card text-bg-warning h-100 text-decoration-none text-reset">
+            <div class="card-body">
+                <h6 class="card-title text-uppercase opacity-75">Directory Profiles Pending</h6>
+                <h2 class="mb-0">{{ $operationalCounts['profiles_pending_review'] }}</h2>
+            </div>
+        </a>
     </div>
 </div>
 
@@ -166,6 +193,35 @@
                     {{ $pendingReviews->links() }}
                 </div>
             @endif
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Links</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ route('admin.businesses.index') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-clipboard-check me-2"></i> Applications
+                    </a>
+                    <a href="{{ route('admin.business-profiles.index') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-shop me-2"></i> Directory Profiles
+                    </a>
+                    <a href="{{ route('admin.staff.index') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-person-badge me-2"></i> Staff Clearance
+                    </a>
+                    <a href="{{ route('admin.renewals.index') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-arrow-repeat me-2"></i> Renewals
+                    </a>
+                    <a href="{{ route('admin.fees.index') }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-credit-card me-2"></i> Fees
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

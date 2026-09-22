@@ -152,4 +152,22 @@ class BusinessVerificationDecisionTest extends TestCase
             ->assertSeeText('Verified Business Listing')
             ->assertSeeText('Verified by NB-CCI');
     }
+
+    public function test_editing_a_verified_business_pulls_its_public_profile_until_it_is_re_reviewed(): void
+    {
+        $owner = User::factory()->create();
+        $business = Business::factory()->verified()->create(['business_name' => 'Border Trade Movers']);
+        $business->update(['user_id' => $owner->id]);
+        $profile = BusinessProfile::factory()->approved()->create(['business_id' => $business->id]);
+
+        $this->get(route('public.directory.show', $profile))
+            ->assertOk()
+            ->assertSeeText('Verified by NB-CCI');
+
+        $this->actingAs($owner)
+            ->put(route('business-owner.businesses.update', $business), ['phone' => '08099999999']);
+
+        $this->get(route('public.directory.show', $profile))->assertNotFound();
+        $this->get(route('public.directory.index'))->assertDontSeeText('Border Trade Movers');
+    }
 }
