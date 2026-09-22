@@ -13,6 +13,11 @@ class Business extends Model
 {
     use HasFactory;
 
+    public const COUNTRIES = [
+        'NG' => 'Nigeria',
+        'BJ' => 'Benin',
+    ];
+
     protected $fillable = [
         'user_id',
         'registry_number',
@@ -23,6 +28,7 @@ class Business extends Model
         'nrs_number',
         'nin',
         'business_type',
+        'country_code',
         'sector_id',
         'description',
         'correction_response',
@@ -55,7 +61,7 @@ class Business extends Model
     protected function isVerified(): Attribute
     {
         return Attribute::get(function () {
-            return in_array($this->status, ['approved', 'verified'])
+            return $this->status === 'verified'
                 && $this->verification_expires_at
                 && $this->verification_expires_at->isFuture();
         });
@@ -97,6 +103,11 @@ class Business extends Model
     public function verificationReviews(): HasMany
     {
         return $this->hasMany(VerificationReview::class);
+    }
+
+    public function verificationChecks(): HasMany
+    {
+        return $this->hasMany(BusinessVerificationCheck::class);
     }
 
     public function renewalRequests(): HasMany

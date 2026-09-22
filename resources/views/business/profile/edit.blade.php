@@ -15,10 +15,28 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="alert alert-light border">Your verified business name, registry number, sector, and general location are listed automatically. The fields below add public trade information and are reviewed before changes are published.</div>
-        <form method="POST" action="{{ route('business-owner.businesses.profile.store', $business) }}">
+        <div class="alert alert-light border">Your approved business name, registry number, sector, and general location are listed automatically. The fields below add public trade information and are reviewed before changes are published.</div>
+        <form method="POST" action="{{ route('business-owner.businesses.profile.store', $business) }}" enctype="multipart/form-data">
             @csrf
             @php $profile = $business->profile; @endphp
+
+            <div class="row g-3 align-items-center mb-4">
+                <div class="col-auto">
+                    @if($profile?->logo_path)
+                        <img src="{{ route('business-owner.businesses.profile.logo', $business) }}" alt="{{ $business->business_name }} logo" class="border rounded" style="width: 96px; height: 96px; object-fit: contain; background: #fff;">
+                    @else
+                        <div class="border rounded d-flex align-items-center justify-content-center text-muted" style="width: 96px; height: 96px;">
+                            <i class="bi bi-building fs-2"></i>
+                        </div>
+                    @endif
+                </div>
+                <div class="col">
+                    <label for="logo" class="form-label fw-semibold">Business Logo</label>
+                    <input type="file" name="logo" id="logo" class="form-control @error('logo') is-invalid @enderror" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                    @error('logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <div class="form-text">JPG, PNG, or WebP. Maximum 2 MB and 2400 x 2400 pixels.</div>
+                </div>
+            </div>
 
             <div class="mb-3">
                 <label for="summary" class="form-label fw-semibold">Public Summary</label>

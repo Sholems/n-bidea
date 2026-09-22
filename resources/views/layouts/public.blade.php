@@ -156,7 +156,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-building"></i> NB-CCI
+                <x-brand-logo variant="header" />
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
                 <span class="navbar-toggler-icon"></span>
@@ -234,7 +234,9 @@
         <div class="container">
             <div class="row g-4 pb-4">
                 <div class="col-sm-6 col-lg-3">
-                    <a class="footer-brand d-inline-block mb-3" href="{{ route('home') }}"><i class="bi bi-building me-2"></i>NB-CCI</a>
+                    <a class="footer-brand d-inline-block mb-3" href="{{ route('home') }}">
+                        <x-brand-logo variant="footer" loading="lazy" />
+                    </a>
                     <p class="mb-0">Building trusted business connections, investment visibility, and practical trade support across the Nigeria-Benin corridor.</p>
                 </div>
                 <div class="col-sm-6 col-lg-3">

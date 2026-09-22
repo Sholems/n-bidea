@@ -28,6 +28,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Description</th>
+                            <th>Applies To</th>
                             <th>Required</th>
                             <th>Status</th>
                             <th>Documents</th>
@@ -41,6 +42,7 @@
                                     <span class="fw-semibold">{{ $docType->name }}</span>
                                 </td>
                                 <td>{{ $docType->description ?? '—' }}</td>
+                                <td>{{ \App\Models\Business::COUNTRIES[$docType->country_code] ?? 'All businesses' }}</td>
                                 <td>
                                     @if($docType->is_required)
                                         <span class="badge bg-danger">Yes</span>

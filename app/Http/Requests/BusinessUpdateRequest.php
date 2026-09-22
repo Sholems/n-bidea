@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Business;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BusinessUpdateRequest extends FormRequest
 {
@@ -18,6 +20,7 @@ class BusinessUpdateRequest extends FormRequest
             'trading_name' => ['nullable', 'string', 'max:255'],
             'registration_number' => ['sometimes', 'string', 'max:100'],
             'business_type' => ['sometimes', 'string', 'max:100'],
+            'country_code' => ['sometimes', Rule::in(array_keys(Business::COUNTRIES))],
             'sector_id' => ['nullable', 'exists:sectors,id'],
             'description' => ['nullable', 'string', 'max:1000'],
             'address' => ['sometimes', 'string', 'max:500'],

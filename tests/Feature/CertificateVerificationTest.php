@@ -13,7 +13,7 @@ class CertificateVerificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_approving_a_business_creates_an_active_certificate(): void
+    public function test_approving_a_business_publishes_its_profile_without_granting_verification(): void
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -32,13 +32,10 @@ class CertificateVerificationTest extends TestCase
             ->assertRedirect(route('admin.businesses.show', $business));
 
         $business->refresh();
-        $certificate = $business->certificate;
-
-        $this->assertNotNull($certificate);
-        $this->assertSame('active', $certificate->status);
-        $this->assertSame($business->registry_number, $certificate->business->registry_number);
-        $this->assertTrue($certificate->expires_at->isFuture());
-        $this->assertStringContainsString('/verify/', $certificate->qr_payload);
+        $this->assertSame('approved', $business->status);
+        $this->assertNull($business->verified_at);
+        $this->assertNull($business->verification_expires_at);
+        $this->assertNull($business->certificate);
         $this->assertDatabaseHas('business_profiles', [
             'business_id' => $business->id,
             'status' => 'approved',
@@ -53,7 +50,7 @@ class CertificateVerificationTest extends TestCase
     public function test_guest_can_verify_certificate_by_number_without_private_fields(): void
     {
         $sector = Sector::factory()->create(['name' => 'Logistics']);
-        $business = Business::factory()->approved()->create([
+        $business = Business::factory()->verified()->create([
             'business_name' => 'Seme Trade Services',
             'sector_id' => $sector->id,
             'nin' => '12345678901',
@@ -81,7 +78,7 @@ class CertificateVerificationTest extends TestCase
 
     public function test_guest_can_verify_certificate_by_registry_number_and_code_url(): void
     {
-        $business = Business::factory()->approved()->create([
+        $business = Business::factory()->verified()->create([
             'business_name' => 'Porto Novo Foods',
         ]);
         $certificate = Certificate::factory()->for($business)->active()->create([
@@ -115,10 +112,11 @@ class CertificateVerificationTest extends TestCase
             'query' => $business->registry_number,
         ])
             ->assertOk()
-            ->assertSeeText('Business Verified')
+            ->assertSeeText('Registration Approved, Verification Pending')
             ->assertSeeText('John Business Enterprises')
             ->assertSeeText('NBCCI-NG-2026-000001')
             ->assertSeeText('Certificate Pending Issuance')
+            ->assertSeeText('Pending Verification')
             ->assertDontSeeText('12345678901')
             ->assertDontSeeText('owner@example.test')
             ->assertDontSeeText('08030000000');
@@ -126,7 +124,7 @@ class CertificateVerificationTest extends TestCase
 
     public function test_revoked_and_unknown_certificates_return_limited_results(): void
     {
-        $business = Business::factory()->approved()->create([
+        $business = Business::factory()->verified()->create([
             'business_name' => 'Lagos Benin Agro',
         ]);
         $certificate = Certificate::factory()->for($business)->revoked()->create([

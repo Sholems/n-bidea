@@ -18,7 +18,7 @@ class AdminDashboardController extends Controller
             'approved' => Business::where('status', 'approved')->count(),
             'rejected' => Business::where('status', 'rejected')->count(),
             'expired' => Business::where('status', 'expired')->count(),
-            'verified' => Business::whereIn('status', ['approved', 'verified'])->count(),
+            'verified' => Business::where('status', 'verified')->count(),
         ];
 
         $recentSubmissions = Business::with('user', 'sector')

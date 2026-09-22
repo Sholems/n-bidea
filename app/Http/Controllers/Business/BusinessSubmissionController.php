@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Business;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CorrectionResponseRequest;
 use App\Models\Business;
-use App\Models\DocumentType;
 use App\Services\AuditService;
+use App\Services\BusinessDocumentRequirementService;
 use App\Services\FeeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 
 class BusinessSubmissionController extends Controller
 {
+    public function __construct(
+        private readonly BusinessDocumentRequirementService $documentRequirements,
+    ) {}
+
     public function submit(Business $business): RedirectResponse
     {
         $this->authorize('update', $business);
@@ -21,10 +25,7 @@ class BusinessSubmissionController extends Controller
             return back()->with('error', 'Only draft businesses can be submitted for review.');
         }
 
-        $requiredTypes = DocumentType::where('is_required', true)->pluck('id');
-        $uploadedTypeIds = $business->documents()->pluck('document_type_id');
-
-        $missing = $requiredTypes->diff($uploadedTypeIds);
+        $missing = $this->documentRequirements->summary($business)['missing_required'];
 
         if ($missing->isNotEmpty()) {
             return back()->with('error', 'Please upload all required documents before submitting.');
@@ -51,6 +52,12 @@ class BusinessSubmissionController extends Controller
 
         if ($business->status !== 'correction_required') {
             return back()->with('error', 'This business is not awaiting corrections.');
+        }
+
+        $missing = $this->documentRequirements->summary($business)['missing_required'];
+
+        if ($missing->isNotEmpty()) {
+            return back()->with('error', 'Please upload all required documents before resubmitting.');
         }
 
         $business->update([

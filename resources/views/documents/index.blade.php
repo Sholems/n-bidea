@@ -14,6 +14,45 @@
 </div>
 
 <div class="card mb-4">
+    <div class="card-header d-flex flex-column flex-md-row justify-content-between gap-2">
+        <div>
+            <h5 class="mb-1"><i class="bi bi-list-check me-2"></i>Document Requirements</h5>
+            <span class="text-muted small">{{ $requirementSummary['uploaded_required_count'] }} of {{ $requirementSummary['required_count'] }} required documents uploaded</span>
+        </div>
+        <span class="fw-semibold text-primary">{{ $requirementSummary['completion_percentage'] }}% complete</span>
+    </div>
+    <div class="card-body">
+        <div class="progress mb-3" role="progressbar" aria-label="Required document completion" aria-valuenow="{{ $requirementSummary['completion_percentage'] }}" aria-valuemin="0" aria-valuemax="100" style="height: 0.6rem;">
+            <div class="progress-bar" style="width: {{ $requirementSummary['completion_percentage'] }}%"></div>
+        </div>
+        <div class="row g-2">
+            @forelse($requirementSummary['items'] as $item)
+                <div class="col-md-6">
+                    <div class="border rounded p-3 h-100 d-flex justify-content-between gap-3">
+                        <div>
+                            <div class="fw-semibold">{{ $item['type']->name }}</div>
+                            @if($item['type']->description)
+                                <div class="text-muted small mt-1">{{ $item['type']->description }}</div>
+                            @endif
+                        </div>
+                        <div class="flex-shrink-0 text-end">
+                            <span class="badge {{ $item['uploaded'] ? 'bg-success' : 'bg-light text-dark border' }}">
+                                {{ $item['uploaded'] ? 'Uploaded' : 'Missing' }}
+                            </span>
+                            <div class="small mt-1 {{ $item['type']->is_required ? 'text-danger' : 'text-muted' }}">
+                                {{ $item['type']->is_required ? 'Required' : 'Optional' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-12 text-muted">No active document requirements apply to this business.</div>
+            @endforelse
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
     <div class="card-header">
         <h5 class="mb-0"><i class="bi bi-upload me-2"></i>Upload Document</h5>
     </div>
@@ -25,7 +64,7 @@
                     <label for="document_type_id" class="form-label">Document Type</label>
                     <select name="document_type_id" id="document_type_id" class="form-select @error('document_type_id') is-invalid @enderror" required>
                         <option value="">Select document type...</option>
-                        @foreach(\App\Models\DocumentType::where('status', 'active')->get() as $type)
+                        @foreach($documentTypes as $type)
                             <option value="{{ $type->id }}" {{ old('document_type_id') == $type->id ? 'selected' : '' }}>
                                 {{ $type->name }} {{ $type->is_required ? '(Required)' : '' }}
                             </option>

@@ -11,7 +11,9 @@ use App\Services\AuditService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BusinessDirectoryController extends Controller
 {
@@ -78,6 +80,26 @@ class BusinessDirectoryController extends Controller
         abort_unless(in_array($businessProfile->business->status, ['approved', 'verified']), 404);
 
         return view('public.directory.show', ['profile' => $businessProfile]);
+    }
+
+    public function logo(BusinessProfile $businessProfile): StreamedResponse
+    {
+        abort_unless($businessProfile->newQuery()->whereKey($businessProfile->getKey())->approved()->exists(), 404);
+        abort_unless(
+            $businessProfile->logo_path
+                && in_array($businessProfile->business()->value('status'), ['approved', 'verified'], true)
+                && Storage::disk('private')->exists($businessProfile->logo_path),
+            404
+        );
+
+        return Storage::disk('private')->response(
+            $businessProfile->logo_path,
+            null,
+            [
+                'Content-Type' => $businessProfile->logo_mime_type ?? 'image/jpeg',
+                'Cache-Control' => 'public, max-age=3600',
+            ],
+        );
     }
 
     public function storeInquiry(BusinessInquiryRequest $request, BusinessProfile $businessProfile): RedirectResponse

@@ -16,7 +16,7 @@ class SuperAdminDashboardController extends Controller
         $counts = [
             'total_users' => User::count(),
             'total_businesses' => Business::count(),
-            'total_verified' => Business::whereIn('status', ['approved', 'verified'])->count(),
+            'total_verified' => Business::where('status', 'verified')->count(),
             'total_officials' => User::where('role', 'government_official')->count(),
             'total_admins' => User::where('role', 'admin')->count(),
             'pending_applications' => Business::where('status', 'submitted')->count(),

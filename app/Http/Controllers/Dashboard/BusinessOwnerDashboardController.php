@@ -17,7 +17,7 @@ class BusinessOwnerDashboardController extends Controller
             'total' => $businesses->count(),
             'draft' => $businesses->where('status', 'draft')->count(),
             'submitted' => $businesses->where('status', 'submitted')->count(),
-            'verified' => $businesses->whereIn('status', ['approved', 'verified'])->count(),
+            'verified' => $businesses->where('status', 'verified')->count(),
             'expired' => $businesses->where('status', 'expired')->count(),
         ];
 

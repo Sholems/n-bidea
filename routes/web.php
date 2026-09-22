@@ -35,6 +35,7 @@ use App\Http\Controllers\Home\BusinessDirectoryController;
 use App\Http\Controllers\Home\KnowledgeHubController;
 use App\Http\Controllers\Home\PublicController;
 use App\Http\Controllers\Home\VerificationController;
+use App\Http\Controllers\SuperAdmin\BusinessVerificationController as SuperAdminBusinessVerificationController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAgencyController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAuditLogController;
 use App\Http\Controllers\SuperAdmin\SuperAdminDocumentTypeController;
@@ -56,6 +57,7 @@ Route::view('/afcfta-ecowas', 'public.afcfta-ecowas')->name('public.afcfta-ecowa
 Route::view('/registry', 'public.registry')->name('public.registry');
 Route::get('/directory', [BusinessDirectoryController::class, 'index'])->name('public.directory.index');
 Route::get('/directory/{businessProfile}', [BusinessDirectoryController::class, 'show'])->name('public.directory.show');
+Route::get('/directory/{businessProfile}/logo', [BusinessDirectoryController::class, 'logo'])->name('public.directory.logo');
 Route::get('/verify', [VerificationController::class, 'index'])->name('public.verification.index');
 Route::post('/verify', [VerificationController::class, 'search'])->name('public.verification.search');
 Route::get('/verify/{verificationCode}', [VerificationController::class, 'show'])->name('public.verification.code');
@@ -94,6 +96,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::resource('businesses', BusinessController::class);
         Route::get('/businesses/{business}/profile', [BusinessProfileController::class, 'show'])->name('businesses.profile.show');
         Route::get('/businesses/{business}/profile/edit', [BusinessProfileController::class, 'edit'])->name('businesses.profile.edit');
+        Route::get('/businesses/{business}/profile/logo', [BusinessProfileController::class, 'logo'])->name('businesses.profile.logo');
         Route::post('/businesses/{business}/profile', [BusinessProfileController::class, 'store'])->name('businesses.profile.store');
         Route::post('/businesses/{business}/submit', [BusinessSubmissionController::class, 'submit'])->name('businesses.submit');
         Route::post('/businesses/{business}/correction-response', [BusinessSubmissionController::class, 'correctionResponse'])->name('businesses.correction-response');
@@ -148,6 +151,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     // Super Admin routes
     Route::prefix('super-admin')->name('super-admin.')->middleware('role:super_admin')->group(function () {
         Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/businesses/{business}/verification', [SuperAdminBusinessVerificationController::class, 'store'])->name('businesses.verification.store');
         // Users
         Route::resource('users', SuperAdminUserController::class);
         Route::post('/users/{user}/suspend', [SuperAdminUserController::class, 'suspend'])->name('users.suspend');

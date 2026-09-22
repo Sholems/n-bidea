@@ -57,6 +57,7 @@ class Certificate extends Model
     {
         return $this->status === 'active'
             && $this->revoked_at === null
-            && $this->expires_at->isFuture();
+            && $this->expires_at->isFuture()
+            && $this->business->is_verified;
     }
 }

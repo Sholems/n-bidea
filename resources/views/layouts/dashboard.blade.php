@@ -142,7 +142,7 @@
 
     <aside class="sidebar" id="sidebar">
         <div class="brand">
-            <i class="bi bi-building"></i> NB-CCI
+            <x-brand-logo variant="sidebar" />
         </div>
         <nav class="mt-2">
             @php $role = Auth::user()->role; @endphp

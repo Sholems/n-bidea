@@ -8,12 +8,17 @@ use App\Http\Requests\BusinessUpdateRequest;
 use App\Models\Business;
 use App\Models\Sector;
 use App\Services\AuditService;
+use App\Services\BusinessDocumentRequirementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BusinessController extends Controller
 {
+    public function __construct(
+        private readonly BusinessDocumentRequirementService $documentRequirements,
+    ) {}
+
     public function index(Request $request): View
     {
         $businesses = $request->user()->businesses()->with('sector')->latest()->paginate(15);
@@ -24,8 +29,9 @@ class BusinessController extends Controller
     public function create(): View
     {
         $sectors = Sector::where('status', 'active')->get();
+        $countries = Business::COUNTRIES;
 
-        return view('business.create', compact('sectors'));
+        return view('business.create', compact('sectors', 'countries'));
     }
 
     public function store(BusinessStoreRequest $request): RedirectResponse
@@ -51,8 +57,9 @@ class BusinessController extends Controller
         $business->load(['documents.documentType', 'sector']);
 
         $documents = $business->documents;
+        $requirementSummary = $this->documentRequirements->summary($business);
 
-        return view('business.show', compact('business', 'documents'));
+        return view('business.show', compact('business', 'documents', 'requirementSummary'));
     }
 
     public function edit(Business $business): View
@@ -60,8 +67,9 @@ class BusinessController extends Controller
         $this->authorize('update', $business);
 
         $sectors = Sector::where('status', 'active')->get();
+        $countries = Business::COUNTRIES;
 
-        return view('business.edit', compact('business', 'sectors'));
+        return view('business.edit', compact('business', 'sectors', 'countries'));
     }
 
     public function update(BusinessUpdateRequest $request, Business $business): RedirectResponse

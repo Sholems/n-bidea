@@ -35,6 +35,19 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+                <div class="col-md-6">
+                    <label for="country_code" class="form-label">Applies To</label>
+                    <select name="country_code" id="country_code" class="form-select @error('country_code') is-invalid @enderror">
+                        <option value="">All businesses</option>
+                        @foreach(\App\Models\Business::COUNTRIES as $code => $country)
+                            <option value="{{ $code }}" @selected(old('country_code', $documentType->country_code) === $code)>{{ $country }}</option>
+                        @endforeach
+                    </select>
+                    <div class="form-text">Choose a country when this requirement only applies in that jurisdiction.</div>
+                    @error('country_code')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
                 <div class="col-12">
                     <label for="description" class="form-label">Description</label>
                     <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" rows="3">{{ old('description', $documentType->description) }}</textarea>

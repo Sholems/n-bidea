@@ -57,4 +57,9 @@ class BusinessPolicy
     {
         return in_array($user->role, ['super_admin', 'admin']);
     }
+
+    public function verify(User $user, Business $business): bool
+    {
+        return $user->role === 'super_admin' && $business->status === 'approved';
+    }
 }

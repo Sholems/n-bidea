@@ -37,7 +37,7 @@ class StaffMemberPolicyTest extends TestCase
     }
 
     #[DataProvider('ownerEditByStatus')]
-    public function test_owner_can_delete_staff_only_while_draft(string $status): void
+    public function test_owner_can_delete_staff_only_while_draft(string $status, bool $_allowed): void
     {
         [$owner, $staffMember] = $this->ownerAndStaff($status);
 

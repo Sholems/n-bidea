@@ -16,6 +16,8 @@ class BusinessSubmissionTest extends TestCase
 
     public function test_owner_submits_draft_business_and_status_becomes_submitted(): void
     {
+        $this->disableDocumentRequirements();
+
         $owner = User::factory()->create();
         $business = Business::factory()->for($owner)->create(['status' => 'draft']);
 
@@ -68,6 +70,8 @@ class BusinessSubmissionTest extends TestCase
 
     public function test_correction_response_still_resubmits_a_business_awaiting_correction(): void
     {
+        $this->disableDocumentRequirements();
+
         $owner = User::factory()->create();
         $business = Business::factory()->for($owner)->create(['status' => 'correction_required']);
 
@@ -125,6 +129,8 @@ class BusinessSubmissionTest extends TestCase
 
     public function test_submission_raises_the_configured_certification_fee(): void
     {
+        $this->disableDocumentRequirements();
+
         Setting::set('certification_fee', '25000');
         $owner = User::factory()->create();
         $business = Business::factory()->for($owner)->create(['status' => 'draft']);
@@ -143,6 +149,8 @@ class BusinessSubmissionTest extends TestCase
 
     public function test_submission_raises_no_fee_when_no_amount_is_configured(): void
     {
+        $this->disableDocumentRequirements();
+
         $owner = User::factory()->create();
         $business = Business::factory()->for($owner)->create(['status' => 'draft']);
 
@@ -151,5 +159,10 @@ class BusinessSubmissionTest extends TestCase
 
         $this->assertSame('submitted', $business->refresh()->status);
         $this->assertSame(0, Fee::count());
+    }
+
+    private function disableDocumentRequirements(): void
+    {
+        DocumentType::query()->update(['status' => 'inactive']);
     }
 }

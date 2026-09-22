@@ -8,6 +8,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-9">
                 @if($business)
+                    @php($isPendingVerification = $business->status === 'approved' && ! $isValid)
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4 p-lg-5">
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
@@ -17,12 +18,12 @@
                                         @if($certificate)
                                             {{ $isValid ? 'Certificate Verified' : 'Certificate Not Valid' }}
                                         @else
-                                            {{ $isValid ? 'Business Verified' : 'Business Not Valid' }}
+                                            {{ $isValid ? 'Business Verified' : ($isPendingVerification ? 'Registration Approved, Verification Pending' : 'Business Not Valid') }}
                                         @endif
                                     </h1>
                                 </div>
-                                <span class="badge {{ $isValid ? 'bg-success' : 'bg-danger' }} fs-6">
-                                    {{ $isValid ? 'Valid' : 'Not Valid' }}
+                                <span class="badge {{ $isValid ? 'bg-success' : ($isPendingVerification ? 'bg-warning text-dark' : 'bg-danger') }} fs-6">
+                                    {{ $isValid ? 'Valid' : ($isPendingVerification ? 'Pending Verification' : 'Not Valid') }}
                                 </span>
                             </div>
 

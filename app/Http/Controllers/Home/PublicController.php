@@ -14,7 +14,7 @@ class PublicController extends Controller
     public function index(): View
     {
         $platformStats = [
-            'verifiedBusinesses' => Business::query()->whereIn('status', ['approved', 'verified'])->count(),
+            'verifiedBusinesses' => Business::query()->where('status', 'verified')->count(),
             'activeSectors' => Sector::query()->where('status', 'active')->count(),
         ];
 
