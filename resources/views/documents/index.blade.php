@@ -112,11 +112,9 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
-                                        @if(file_exists(storage_path('app/private/'.$document->file_path)))
-                                            <a href="{{ route('business-owner.documents.download', $document) }}" class="btn btn-outline-primary" title="Download">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                        @endif
+                                        <a href="{{ route('business-owner.documents.download', $document) }}" class="btn btn-outline-primary" title="Download">
+                                            <i class="bi bi-download"></i>
+                                        </a>
                                         @if(in_array($document->status, ['rejected', 'expired']))
                                             <form action="{{ route('business-owner.documents.replace', $document) }}" method="POST" class="d-inline" enctype="multipart/form-data">
                                                 @csrf
