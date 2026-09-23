@@ -7,9 +7,19 @@
     <h1 class="h3 mb-0">Platform Settings</h1>
 </div>
 
+@if($errors->any())
+    <div class="alert alert-danger">
+        <strong>Settings were not saved:</strong>
+        <ul class="mb-0 mt-1">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <form action="{{ route('super-admin.settings.update') }}" method="POST">
     @csrf
-    @method('PUT')
 
     <div class="card mb-4">
         <div class="card-header">
@@ -39,9 +49,9 @@
                                             <option value="0" {{ !$setting->value ? 'selected' : '' }}>Disabled</option>
                                         </select>
                                     @elseif($setting->type === 'textarea')
-                                        <textarea name="settings[{{ $setting->key }}]" class="form-control form-control-sm" rows="2">{{ $setting->value }}</textarea>
+                                        <textarea name="settings[{{ $setting->key }}]" class="form-control form-control-sm @error('settings.'.$setting->key) is-invalid @enderror" rows="2">{{ old('settings.'.$setting->key, $setting->value) }}</textarea>
                                     @else
-                                        <input type="text" name="settings[{{ $setting->key }}]" class="form-control form-control-sm" value="{{ $setting->value }}">
+                                        <input type="text" name="settings[{{ $setting->key }}]" class="form-control form-control-sm @error('settings.'.$setting->key) is-invalid @enderror" value="{{ old('settings.'.$setting->key, $setting->value) }}">
                                     @endif
                                 </td>
                             </tr>

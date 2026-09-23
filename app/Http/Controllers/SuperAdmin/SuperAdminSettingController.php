@@ -22,17 +22,29 @@ class SuperAdminSettingController extends Controller
     {
         $this->authorize('is-super-admin');
 
-        $setting = Setting::updateOrCreate(
-            ['key' => $request->input('key')],
-            ['value' => $request->input('value')],
-        );
+        $existing = Setting::all()->keyBy('key');
+        $changed = 0;
 
-        AuditService::logAction(
-            action: 'setting.updated',
-            description: "Setting '{$setting->key}' updated to '{$setting->value}' by super admin",
-            auditable: $setting,
-        );
+        foreach ($request->validated('settings') as $key => $value) {
+            $setting = $existing->get($key);
 
-        return back()->with('success', 'Setting updated successfully.');
+            if ($setting === null || $setting->value === $value) {
+                continue;
+            }
+
+            $setting->update(['value' => $value]);
+            $changed++;
+
+            AuditService::logAction(
+                action: 'setting.updated',
+                description: "Setting '{$setting->key}' updated to '{$setting->value}' by super admin",
+                auditable: $setting,
+            );
+        }
+
+        return back()->with(
+            'success',
+            $changed > 0 ? "{$changed} setting(s) updated successfully." : 'No changes to save.'
+        );
     }
 }
