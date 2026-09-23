@@ -31,6 +31,7 @@
                     <div class="fw-bold mb-3">
                         @if($profile->business->is_verified)
                             <span class="text-success"><i class="bi bi-patch-check-fill me-1"></i>Verified by NB-CCI</span>
+                            <small class="d-block text-muted mt-1">Valid until {{ $profile->business->verification_expires_at->format('d M Y') }}</small>
                         @else
                             <span>Registration approved</span>
                         @endif

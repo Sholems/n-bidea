@@ -55,7 +55,16 @@ class BusinessDirectoryController extends Controller
             });
         }
 
-        $profiles = $query->latest('approved_at')->paginate(12)->withQueryString();
+        $profiles = $query
+            ->withExists(['business as currently_verified' => function (Builder $query): void {
+                $query->where('status', 'verified')
+                    ->where('verification_expires_at', '>', now());
+            }])
+            ->orderByDesc('currently_verified')
+            ->orderByDesc('business_profiles.approved_at')
+            ->orderByDesc('business_profiles.id')
+            ->paginate(12)
+            ->withQueryString();
         $sectors = Sector::where('status', 'active')->orderBy('name')->get();
         $states = BusinessProfile::query()
             ->approved()

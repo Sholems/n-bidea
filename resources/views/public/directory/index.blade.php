@@ -67,7 +67,7 @@
             <div class="row g-4">
                 @foreach($profiles as $profile)
                     <div class="col-md-6 col-xl-4">
-                        <article class="card h-100 border-0 shadow-sm">
+                        <article class="card h-100 shadow-sm {{ $profile->business->is_verified ? 'border-success border-2' : 'border-0' }}">
                             <div class="card-body d-flex flex-column">
                                 <div class="d-flex justify-content-between gap-3 mb-3">
                                     <div class="d-flex gap-3">
@@ -84,7 +84,7 @@
                                         </div>
                                     </div>
                                     @if($profile->business->is_verified)
-                                        <span class="badge bg-success align-self-start"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
+                                        <span class="badge bg-success align-self-start" title="Verified by NB-CCI"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
                                     @else
                                         <span class="badge bg-light text-dark border align-self-start">Registered</span>
                                     @endif
@@ -93,6 +93,11 @@
                                 <div class="small text-muted mb-3">
                                     <i class="bi bi-geo-alt me-1"></i>{{ $profile->operating_locations }}
                                 </div>
+                                @if($profile->business->is_verified)
+                                    <div class="small text-success fw-semibold mb-3">
+                                        <i class="bi bi-shield-check me-1"></i>NB-CCI verification valid until {{ $profile->business->verification_expires_at->format('d M Y') }}
+                                    </div>
+                                @endif
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                     <span class="small fw-semibold text-ncci">{{ $profile->business->registry_number }}</span>
                                     <a href="{{ route('public.directory.show', $profile) }}" class="btn btn-outline-ncci btn-sm">View Profile</a>

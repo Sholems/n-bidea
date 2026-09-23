@@ -9,7 +9,9 @@ use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminBusinessProfileController extends Controller
 {
@@ -42,6 +44,26 @@ class AdminBusinessProfileController extends Controller
         $businessProfile->load(['business.sector', 'business.user', 'approver', 'inquiries.requester']);
 
         return view('admin.business-profiles.show', ['profile' => $businessProfile]);
+    }
+
+    public function logo(BusinessProfile $businessProfile): StreamedResponse
+    {
+        $this->authorize('is-admin-or-super');
+
+        abort_unless(
+            $businessProfile->logo_path
+                && Storage::disk('private')->exists($businessProfile->logo_path),
+            404
+        );
+
+        return Storage::disk('private')->response(
+            $businessProfile->logo_path,
+            null,
+            [
+                'Content-Type' => $businessProfile->logo_mime_type ?? 'image/jpeg',
+                'Cache-Control' => 'private, max-age=300',
+            ],
+        );
     }
 
     public function update(BusinessProfileReviewRequest $request, BusinessProfile $businessProfile): RedirectResponse

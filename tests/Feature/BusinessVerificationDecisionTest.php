@@ -96,6 +96,25 @@ class BusinessVerificationDecisionTest extends TestCase
         $this->assertSame('approved', $business->refresh()->status);
     }
 
+    public function test_only_super_admin_sees_the_manual_verification_decision_form(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $business = Business::factory()->approved()->create();
+
+        $this->actingAs($superAdmin)
+            ->get(route('admin.businesses.show', $business))
+            ->assertOk()
+            ->assertSeeText('Record Verification Decision')
+            ->assertSee(route('super-admin.businesses.verification.store', $business), false);
+
+        $this->actingAs($admin)
+            ->get(route('admin.businesses.show', $business))
+            ->assertOk()
+            ->assertDontSeeText('Record Verification Decision')
+            ->assertSeeText('A Super Admin must complete a phone call or site visit');
+    }
+
     public function test_verification_requires_a_supported_method_decision_and_detailed_note(): void
     {
         $superAdmin = User::factory()->create(['role' => 'super_admin']);
@@ -150,7 +169,8 @@ class BusinessVerificationDecisionTest extends TestCase
         $this->get(route('public.directory.show', $verifiedProfile))
             ->assertOk()
             ->assertSeeText('Verified Business Listing')
-            ->assertSeeText('Verified by NB-CCI');
+            ->assertSeeText('Verified by NB-CCI')
+            ->assertSeeText('Valid until '.$verifiedProfile->business->verification_expires_at->format('d M Y'));
     }
 
     public function test_editing_a_verified_business_pulls_its_public_profile_until_it_is_re_reviewed(): void

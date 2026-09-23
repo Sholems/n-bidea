@@ -128,6 +128,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/businesses/{business}', [AdminBusinessController::class, 'show'])->name('businesses.show');
         Route::post('/businesses/{business}/review', [AdminBusinessController::class, 'review'])->name('businesses.review');
         Route::get('/business-profiles', [AdminBusinessProfileController::class, 'index'])->name('business-profiles.index');
+        Route::get('/business-profiles/{businessProfile}/logo', [AdminBusinessProfileController::class, 'logo'])->name('business-profiles.logo');
         Route::get('/business-profiles/{businessProfile}', [AdminBusinessProfileController::class, 'show'])->name('business-profiles.show');
         Route::patch('/business-profiles/{businessProfile}', [AdminBusinessProfileController::class, 'update'])->name('business-profiles.update');
         Route::get('/businesses/{business}/documents', [AdminDocumentController::class, 'index'])->name('documents.index');

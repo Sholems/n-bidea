@@ -74,6 +74,32 @@ class BusinessProfileLogoTest extends TestCase
             ->assertHeader('content-type', 'image/png');
     }
 
+    public function test_admin_can_preview_a_pending_profile_logo_but_business_owners_cannot_use_the_admin_endpoint(): void
+    {
+        Storage::fake('private');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $otherOwner = User::factory()->create();
+        $profile = BusinessProfile::factory()->pending()->create([
+            'logo_path' => 'business-logos/pending-review.png',
+            'logo_mime_type' => 'image/png',
+        ]);
+        Storage::disk('private')->put($profile->logo_path, 'image-content');
+
+        $this->actingAs($admin)
+            ->get(route('admin.business-profiles.logo', $profile))
+            ->assertOk()
+            ->assertHeader('content-type', 'image/png');
+
+        $this->actingAs($admin)
+            ->get(route('admin.business-profiles.show', $profile))
+            ->assertOk()
+            ->assertSee(route('admin.business-profiles.logo', $profile), false);
+
+        $this->actingAs($otherOwner)
+            ->get(route('admin.business-profiles.logo', $profile))
+            ->assertForbidden();
+    }
+
     public function test_replacing_a_logo_deletes_the_previous_cloud_object(): void
     {
         Storage::fake('private');

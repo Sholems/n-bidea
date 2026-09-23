@@ -122,6 +122,26 @@ class BusinessDirectoryTest extends TestCase
             ->assertDontSeeText('private-contact@example.test');
     }
 
+    public function test_currently_verified_businesses_are_listed_before_newer_approved_businesses(): void
+    {
+        BusinessProfile::factory()->approved()->create([
+            'business_id' => Business::factory()->approved()->create([
+                'business_name' => 'Newer Approved Company',
+            ])->id,
+            'approved_at' => now(),
+        ]);
+        BusinessProfile::factory()->approved()->create([
+            'business_id' => Business::factory()->verified()->create([
+                'business_name' => 'Verified Priority Company',
+            ])->id,
+            'approved_at' => now()->subMonth(),
+        ]);
+
+        $this->get(route('public.directory.index'))
+            ->assertOk()
+            ->assertSeeInOrder(['Verified Priority Company', 'Newer Approved Company']);
+    }
+
     public function test_authenticated_user_can_submit_directory_inquiry_without_exposing_owner_contact(): void
     {
         $requester = User::factory()->create([

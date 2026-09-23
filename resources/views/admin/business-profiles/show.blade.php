@@ -29,6 +29,15 @@
                 <span class="badge bg-{{ $statusColors[$profile->status] ?? 'secondary' }}">{{ ucfirst($profile->status) }}</span>
             </div>
             <div class="card-body">
+                @if($profile->logo_path)
+                    <div class="d-flex align-items-center gap-3 border-bottom pb-3 mb-3">
+                        <img src="{{ route('admin.business-profiles.logo', $profile) }}" alt="{{ $profile->business->business_name }} logo" class="border rounded bg-white flex-shrink-0" style="width: 88px; height: 88px; object-fit: contain;">
+                        <div>
+                            <small class="text-muted d-block">Business Logo</small>
+                            <div class="fw-semibold">Review this image before publishing the listing.</div>
+                        </div>
+                    </div>
+                @endif
                 <div class="mb-3">
                     <small class="text-muted d-block">Summary</small>
                     <p class="mb-0">{{ $profile->summary }}</p>
