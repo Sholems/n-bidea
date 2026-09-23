@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'N-BIDEA Platform - NB-CCI')
+@section('meta_description', 'Connect with verified businesses, trade opportunities, investment resources, and institutional partners across the Nigeria-Benin commercial corridor through NB-CCI.')
 
 @push('styles')
 <style>

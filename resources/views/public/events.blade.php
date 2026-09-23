@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Events')
+@section('meta_description', 'Find NB-CCI trade missions, business forums, investment meetings, workshops, and cross-border commerce events.')
 
 @section('content')
 <section class="public-page-hero">

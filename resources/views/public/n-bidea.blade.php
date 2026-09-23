@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'N-BIDEA Programme')
+@section('meta_description', 'Explore the N-BIDEA programme supporting business integration, digital trade services, investment, and economic cooperation between Nigeria and Benin.')
 
 @section('content')
 <section class="public-page-hero">

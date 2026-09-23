@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Business Registry')
+@section('meta_description', 'Understand the NB-CCI business registration, review, verification, and public directory process for Nigeria-Benin corridor enterprises.')
 
 @section('content')
 <section class="public-page-hero">

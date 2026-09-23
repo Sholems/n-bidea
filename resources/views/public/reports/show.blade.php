@@ -1,6 +1,8 @@
 @extends('layouts.public')
 
 @section('title', $publication->title)
+@section('meta_description', \Illuminate\Support\Str::limit(strip_tags($publication->description), 160, ''))
+@section('meta_type', 'article')
 
 @section('content')
 <section class="py-5 bg-ncci-soft">

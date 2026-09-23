@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Priority Sectors')
+@section('meta_description', 'Explore the priority sectors driving trade, investment, industrial cooperation, and economic growth across the Nigeria-Benin corridor.')
 
 @section('content')
 <section class="public-page-hero">

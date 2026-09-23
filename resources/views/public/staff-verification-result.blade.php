@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Verification Result')
+@section('meta_robots', 'noindex, nofollow')
 
 @section('content')
 <section class="py-5 bg-ncci-soft">

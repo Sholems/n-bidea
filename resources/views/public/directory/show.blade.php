@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', $profile->business->business_name.' - NB-CCI Directory')
+@section('meta_description', \Illuminate\Support\Str::limit(strip_tags($profile->summary), 160, ''))
 
 @section('content')
 <section class="public-page-hero py-5">

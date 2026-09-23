@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'AfCFTA and ECOWAS')
+@section('meta_description', 'Understand how AfCFTA and ECOWAS frameworks support regional market access, trade facilitation, and Nigeria-Benin business cooperation.')
 
 @section('content')
 <section class="public-page-hero">

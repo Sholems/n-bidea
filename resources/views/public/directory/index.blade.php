@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Business Directory - NB-CCI')
+@section('meta_description', 'Search the NB-CCI directory for approved and verified businesses operating across the Nigeria-Benin trade corridor.')
 
 @section('content')
 <section class="public-page-hero py-5">

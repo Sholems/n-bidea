@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Knowledge Hub')
+@section('meta_description', 'Access NB-CCI trade reports, market insights, publications, guides, and practical resources for Nigeria-Benin cross-border commerce.')
 
 @section('content')
 <section class="public-page-hero">

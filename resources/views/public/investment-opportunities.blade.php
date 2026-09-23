@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Investment Opportunities')
+@section('meta_description', 'Discover investment opportunities and priority projects connecting businesses and investors across Nigeria and Benin.')
 
 @section('content')
 <section class="public-page-hero">

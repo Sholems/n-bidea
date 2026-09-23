@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Verify a Certificate')
+@section('meta_description', 'Verify an NB-CCI business registry number or certificate code through the official public verification service.')
 
 @section('content')
 <section class="public-page-hero">

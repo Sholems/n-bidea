@@ -1,6 +1,8 @@
 @extends('layouts.public')
 
 @section('title', $post->title)
+@section('meta_description', \Illuminate\Support\Str::limit(strip_tags($post->excerpt ?: $post->body), 160, ''))
+@section('meta_type', 'article')
 
 @section('content')
 <section class="py-5">

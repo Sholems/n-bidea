@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Contact NB-CCI')
+@section('meta_description', 'Contact the Nigeria-Benin Chamber of Commerce and Industry for membership, verification, trade support, partnerships, and investment enquiries.')
 
 @section('content')
 <section class="public-page-hero">
