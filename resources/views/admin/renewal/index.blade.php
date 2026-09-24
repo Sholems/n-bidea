@@ -7,6 +7,30 @@
     <h1 class="h3 mb-0">Renewal Requests</h1>
 </div>
 
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ route('admin.renewals.index') }}" method="GET" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label for="status" class="form-label">Request status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">All request statuses</option>
+                    @foreach(['pending', 'approved', 'rejected'] as $status)
+                        <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst($status) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i> Apply Filter</button>
+            </div>
+            @if(request('status'))
+                <div class="col-md-3">
+                    <a href="{{ route('admin.renewals.index') }}" class="btn btn-outline-secondary w-100">Clear Filter</a>
+                </div>
+            @endif
+        </form>
+    </div>
+</div>
+
 @php
     $statusColors = [
         'pending' => 'warning',
@@ -63,7 +87,7 @@
     </div>
     @if($renewalRequests->hasPages())
         <div class="card-footer bg-white">
-            {{ $renewalRequests->links() }}
+            {{ $renewalRequests->withQueryString()->links() }}
         </div>
     @endif
 </div>

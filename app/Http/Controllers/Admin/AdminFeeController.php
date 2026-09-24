@@ -7,18 +7,26 @@ use App\Models\Fee;
 use App\Notifications\FeeConfirmedNotification;
 use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AdminFeeController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('is-admin-or-super');
 
-        $fees = Fee::with('business')
+        $query = Fee::with('business');
+
+        if ($status = $request->string('status')->trim()->toString()) {
+            $query->where('payment_status', $status);
+        }
+
+        $fees = $query
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         return view('admin.fees.index', compact('fees'));
     }

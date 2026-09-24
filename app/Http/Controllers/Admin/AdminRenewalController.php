@@ -14,13 +14,20 @@ use Illuminate\View\View;
 
 class AdminRenewalController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('is-admin-or-super');
 
-        $renewalRequests = RenewalRequest::with('business', 'requester')
+        $query = RenewalRequest::with('business', 'requester');
+
+        if ($status = $request->string('status')->trim()->toString()) {
+            $query->where('status', $status);
+        }
+
+        $renewalRequests = $query
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         return view('admin.renewal.index', compact('renewalRequests'));
     }

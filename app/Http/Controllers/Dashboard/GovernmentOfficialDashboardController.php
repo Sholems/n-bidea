@@ -16,26 +16,35 @@ class GovernmentOfficialDashboardController extends Controller
      *
      * @var array<int, string>
      */
-    private const CHECK_ACTIONS = [
-        'government_verification_check',
+    private const LOOKUP_ACTIONS = [
         'government_view_business',
         'government_view_staff',
+    ];
+
+    private const ACTIVITY_ACTIONS = [
+        'government_verification_check',
+        ...self::LOOKUP_ACTIONS,
     ];
 
     public function index(Request $request): View
     {
         $userId = $request->user()->id;
 
-        $baseQuery = fn () => AuditLog::where('user_id', $userId)
-            ->whereIn('action', self::CHECK_ACTIONS);
+        $checks = fn () => AuditLog::where('user_id', $userId)
+            ->where('action', 'government_verification_check');
+        $lookups = fn () => AuditLog::where('user_id', $userId)
+            ->whereIn('action', self::LOOKUP_ACTIONS);
 
         $counts = [
-            'today' => $baseQuery()->whereDate('created_at', today())->count(),
-            'this_week' => $baseQuery()->where('created_at', '>=', now()->startOfWeek())->count(),
-            'total' => $baseQuery()->count(),
+            'checks_today' => $checks()->whereDate('created_at', today())->count(),
+            'checks_this_week' => $checks()->where('created_at', '>=', now()->startOfWeek())->count(),
+            'checks_total' => $checks()->count(),
+            'lookups_today' => $lookups()->whereDate('created_at', today())->count(),
+            'lookups_total' => $lookups()->count(),
         ];
 
-        $recentChecks = $baseQuery()
+        $recentActivity = AuditLog::where('user_id', $userId)
+            ->whereIn('action', self::ACTIVITY_ACTIONS)
             ->with('auditable')
             ->orderByDesc('created_at')
             ->limit(10)
@@ -43,7 +52,7 @@ class GovernmentOfficialDashboardController extends Controller
 
         return view('dashboard.government.index', [
             'counts' => $counts,
-            'recentChecks' => $recentChecks,
+            'recentActivity' => $recentActivity,
         ]);
     }
 }

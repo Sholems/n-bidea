@@ -85,4 +85,35 @@ class BusinessOwnerDashboardTest extends TestCase
             ->assertSeeText('Cotonou Freight Partners')
             ->assertSee(route('business-owner.businesses.show', $business), false);
     }
+
+    public function test_shows_a_next_action_for_each_incomplete_business_workflow(): void
+    {
+        $owner = User::factory()->create();
+        Business::factory()->for($owner)->create(['business_name' => 'Draft Export Company']);
+        Business::factory()->for($owner)->create([
+            'business_name' => 'Correction Company',
+            'status' => 'correction_required',
+        ]);
+        Business::factory()->verified()->for($owner)->create(['business_name' => 'No Profile Company']);
+
+        $this->actingAs($owner)
+            ->get(route('business-owner.dashboard'))
+            ->assertOk()
+            ->assertSeeText('Complete and submit registration')
+            ->assertSeeText('Respond to requested corrections')
+            ->assertSeeText('Create public directory profile')
+            ->assertViewHas('actionItems', fn ($items) => $items->count() === 3);
+    }
+
+    public function test_does_not_count_an_expired_verified_status_as_active(): void
+    {
+        $owner = User::factory()->create();
+        Business::factory()->verified()->for($owner)->create();
+        Business::factory()->verified()->for($owner)->create(['verification_expires_at' => now()->subDay()]);
+
+        $this->actingAs($owner)
+            ->get(route('business-owner.dashboard'))
+            ->assertOk()
+            ->assertViewHas('counts', fn (array $counts) => $counts['verified'] === 1 && $counts['expired'] === 1);
+    }
 }

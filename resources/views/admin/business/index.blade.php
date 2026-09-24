@@ -35,6 +35,16 @@
                     </button>
                 </div>
             </div>
+            @if(request()->hasAny(['queue', 'verification']))
+                <input type="hidden" name="queue" value="{{ request('queue') }}">
+                <input type="hidden" name="verification" value="{{ request('verification') }}">
+                <div class="d-flex align-items-center gap-2 mt-3">
+                    <span class="badge bg-light text-dark border">
+                        {{ request('queue') === 'pending_review' ? 'Pending review queue' : ucfirst((string) request('verification')).' verification' }}
+                    </span>
+                    <a href="{{ route('admin.businesses.index') }}" class="small">Clear dashboard filter</a>
+                </div>
+            @endif
         </form>
     </div>
 </div>

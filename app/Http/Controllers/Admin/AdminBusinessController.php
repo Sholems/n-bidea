@@ -23,7 +23,7 @@ class AdminBusinessController extends Controller
     {
         $this->authorize('viewAny', Business::class);
 
-        $query = Business::with('sector');
+        $query = Business::with(['sector', 'user']);
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -35,6 +35,30 @@ class AdminBusinessController extends Controller
 
         if ($status = $request->input('status')) {
             $query->where('status', $status);
+        }
+
+        if ($request->input('queue') === 'pending_review') {
+            $query->whereIn('status', ['submitted', 'under_review']);
+        }
+
+        if ($request->input('verification') === 'active') {
+            $query->where('status', 'verified')
+                ->where('verification_expires_at', '>', now());
+        }
+
+        if ($request->input('verification') === 'expired') {
+            $query->where(function ($query) {
+                $query->where('status', 'expired')
+                    ->orWhere(function ($query) {
+                        $query->where('status', 'verified')
+                            ->where('verification_expires_at', '<=', now());
+                    });
+            });
+        }
+
+        if ($request->input('verification') === 'expiring_soon') {
+            $query->where('status', 'verified')
+                ->whereBetween('verification_expires_at', [now(), now()->addDays(30)]);
         }
 
         $businesses = $query->latest()->paginate(20)->withQueryString();

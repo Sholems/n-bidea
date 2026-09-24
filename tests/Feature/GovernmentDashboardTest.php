@@ -23,8 +23,10 @@ class GovernmentDashboardTest extends TestCase
         $this->actingAs($official)
             ->get(route('government.dashboard'))
             ->assertOk()
-            ->assertSeeText('Staff viewed')
-            ->assertViewHas('counts', fn (array $counts) => $counts['today'] === 1 && $counts['total'] === 1);
+            ->assertSeeText('Staff lookup')
+            ->assertViewHas('counts', fn (array $counts) => $counts['lookups_today'] === 1
+                && $counts['lookups_total'] === 1
+                && $counts['checks_total'] === 0);
     }
 
     public function test_business_lookups_appear_in_the_officials_recent_checks(): void
@@ -38,9 +40,10 @@ class GovernmentDashboardTest extends TestCase
         $this->actingAs($official)
             ->get(route('government.dashboard'))
             ->assertOk()
-            ->assertSeeText('Business viewed')
-            ->assertSeeText('Verification recorded')
-            ->assertViewHas('counts', fn (array $counts) => $counts['total'] === 2);
+            ->assertSeeText('Business lookup')
+            ->assertSeeText('Check recorded')
+            ->assertViewHas('counts', fn (array $counts) => $counts['lookups_total'] === 1
+                && $counts['checks_total'] === 1);
     }
 
     public function test_only_counts_the_authenticated_officials_own_checks(): void
@@ -54,7 +57,8 @@ class GovernmentDashboardTest extends TestCase
         $this->actingAs($official)
             ->get(route('government.dashboard'))
             ->assertOk()
-            ->assertViewHas('counts', fn (array $counts) => $counts['total'] === 0);
+            ->assertViewHas('counts', fn (array $counts) => $counts['lookups_total'] === 0
+                && $counts['checks_total'] === 0);
     }
 
     public function test_unrelated_audit_actions_do_not_appear_as_checks(): void
@@ -66,6 +70,7 @@ class GovernmentDashboardTest extends TestCase
         $this->actingAs($official)
             ->get(route('government.dashboard'))
             ->assertOk()
-            ->assertViewHas('counts', fn (array $counts) => $counts['total'] === 0);
+            ->assertViewHas('counts', fn (array $counts) => $counts['lookups_total'] === 0
+                && $counts['checks_total'] === 0);
     }
 }

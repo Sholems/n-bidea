@@ -45,6 +45,32 @@ class SuperAdminDashboardTest extends TestCase
             ->assertSeeText('Site visit');
     }
 
+    public function test_counts_only_unexpired_verified_businesses_as_active(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        Business::factory()->verified()->create();
+        Business::factory()->verified()->create(['verification_expires_at' => now()->subDay()]);
+
+        $this->actingAs($superAdmin)
+            ->get(route('super-admin.dashboard'))
+            ->assertOk()
+            ->assertViewHas('counts', fn (array $counts) => $counts['total_verified'] === 1 && $counts['expired'] === 1)
+            ->assertSeeText('Action Centre')
+            ->assertSeeText('Configuration Status');
+    }
+
+    public function test_super_admin_navigation_includes_registry_operations(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($superAdmin)
+            ->get(route('super-admin.dashboard'))
+            ->assertOk()
+            ->assertSee(route('admin.businesses.index'), false)
+            ->assertSee(route('admin.renewals.index'), false)
+            ->assertSee(route('admin.fees.index'), false);
+    }
+
     public function test_forbids_admins_from_the_super_admin_dashboard(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

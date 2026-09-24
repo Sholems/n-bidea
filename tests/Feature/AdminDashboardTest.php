@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Business;
 use App\Models\BusinessProfile;
 use App\Models\Fee;
 use App\Models\RenewalRequest;
@@ -44,6 +45,33 @@ class AdminDashboardTest extends TestCase
             ->assertSee(route('admin.business-profiles.index'), false)
             ->assertSee(route('admin.fees.index'), false)
             ->assertSee(route('admin.renewals.index'), false);
+    }
+
+    public function test_recent_submissions_excludes_drafts_and_completed_businesses(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Business::factory()->submitted()->create(['business_name' => 'Submitted Corridor Company']);
+        Business::factory()->create(['business_name' => 'Private Draft Company']);
+        Business::factory()->verified()->create(['business_name' => 'Completed Verified Company']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSeeText('Submitted Corridor Company')
+            ->assertDontSeeText('Private Draft Company')
+            ->assertDontSeeText('Completed Verified Company');
+    }
+
+    public function test_active_and_expired_counts_use_verification_expiry_date(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Business::factory()->verified()->create();
+        Business::factory()->verified()->create(['verification_expires_at' => now()->subDay()]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertViewHas('counts', fn (array $counts) => $counts['verified'] === 1 && $counts['expired'] === 1);
     }
 
     public function test_forbids_business_owners_from_the_admin_dashboard(): void

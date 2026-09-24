@@ -7,6 +7,38 @@
     <h1 class="h3 mb-0">Fee Management</h1>
 </div>
 
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ route('admin.fees.index') }}" method="GET" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label for="status" class="form-label">Payment status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">All payment statuses</option>
+                    @foreach(['unpaid' => 'Unpaid', 'pending_confirmation' => 'Awaiting confirmation', 'paid' => 'Paid'] as $value => $label)
+                        <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i> Apply Filter</button>
+            </div>
+            @if(request('status'))
+                <div class="col-md-3">
+                    <a href="{{ route('admin.fees.index') }}" class="btn btn-outline-secondary w-100">Clear Filter</a>
+                </div>
+            @endif
+        </form>
+    </div>
+</div>
+
+@php
+    $statusColors = [
+        'unpaid' => 'secondary',
+        'pending_confirmation' => 'warning text-dark',
+        'paid' => 'success',
+    ];
+@endphp
+
 <div class="card">
     <div class="card-body p-0">
         @if($fees->isEmpty())
@@ -38,11 +70,9 @@
                                 <td>{{ ucfirst(str_replace('_', ' ', $fee->fee_type)) }}</td>
                                 <td class="fw-semibold">₦{{ number_format($fee->amount, 2) }}</td>
                                 <td>
-                                    @if($fee->payment_status === 'paid')
-                                        <span class="badge bg-success">Paid</span>
-                                    @else
-                                        <span class="badge bg-warning text-dark">Pending</span>
-                                    @endif
+                                    <span class="badge bg-{{ $statusColors[$fee->payment_status] ?? 'secondary' }}">
+                                        {{ $fee->payment_status === 'pending_confirmation' ? 'Awaiting confirmation' : ucfirst(str_replace('_', ' ', $fee->payment_status)) }}
+                                    </span>
                                 </td>
                                 <td>
                                     @if($fee->payment_reference)
@@ -81,7 +111,7 @@
     </div>
     @if($fees->hasPages())
         <div class="card-footer bg-white">
-            {{ $fees->links() }}
+            {{ $fees->withQueryString()->links() }}
         </div>
     @endif
 </div>

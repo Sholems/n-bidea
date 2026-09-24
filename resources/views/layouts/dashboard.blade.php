@@ -135,6 +135,120 @@
             background-color: #fff;
             border-bottom: 1px solid #e9ecef;
         }
+        .dashboard-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .dashboard-heading h1 {
+            font-size: 1.55rem;
+            margin: 0 0 0.25rem;
+        }
+        .section-kicker {
+            color: var(--nbcci-green);
+            display: block;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 0;
+            margin-bottom: .35rem;
+            text-transform: uppercase;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        .metric-tile {
+            min-width: 0;
+            padding: 1rem;
+            border: 1px solid #dfe5df;
+            border-radius: 0.4rem;
+            background: #fff;
+            color: var(--ncci-dark);
+            text-decoration: none;
+        }
+        .metric-tile:hover {
+            border-color: var(--ncci-secondary);
+            color: var(--ncci-dark);
+            box-shadow: 0 5px 16px rgba(8, 36, 20, 0.08);
+        }
+        .metric-tile__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+        .metric-tile__label {
+            color: #667085;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .metric-tile__value {
+            font-size: 1.8rem;
+            font-weight: 750;
+            line-height: 1.1;
+            margin-top: 0.45rem;
+        }
+        .metric-tile__icon {
+            color: var(--ncci-secondary);
+            font-size: 1.2rem;
+        }
+        .metric-tile--attention { border-left: 4px solid #e5a400; }
+        .metric-tile--danger { border-left: 4px solid #c92a2a; }
+        .metric-tile--success { border-left: 4px solid var(--ncci-secondary); }
+        .queue-row {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid #edf0ed;
+            color: inherit;
+            text-decoration: none;
+        }
+        .queue-row:last-child { border-bottom: 0; }
+        .queue-row:hover { background: #f7faf7; color: inherit; }
+        .queue-row__icon {
+            width: 2.25rem;
+            height: 2.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--ncci-light);
+            color: var(--ncci-primary);
+            flex: 0 0 auto;
+        }
+        .queue-row__count {
+            min-width: 2rem;
+            text-align: center;
+        }
+        .status-dot {
+            width: 0.65rem;
+            height: 0.65rem;
+            border-radius: 50%;
+            display: inline-block;
+            flex: 0 0 auto;
+        }
+        .status-dot--ok { background: #198754; }
+        .status-dot--warning { background: #d39e00; }
+        .nav-count {
+            margin-left: auto;
+            min-width: 1.5rem;
+            background: rgba(255, 210, 30, 0.95);
+            color: #082414;
+        }
+        @media (max-width: 1199.98px) {
+            .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 575.98px) {
+            .metric-grid { grid-template-columns: 1fr; }
+            .dashboard-heading { flex-direction: column; }
+            .dashboard-heading .btn { width: 100%; }
+        }
     </style>
     @include('layouts.partials.brand-styles')
     @stack('styles')
@@ -156,6 +270,7 @@
                 </a>
                 <a href="{{ route('business-owner.businesses.index') }}" class="nav-link {{ request()->routeIs('business-owner.businesses.*') ? 'active' : '' }}">
                     <i class="bi bi-building"></i> My Businesses
+                    @if(($navigationBadges['businesses'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['businesses'] }}</span>@endif
                 </a>
                 <a href="{{ route('public.directory.index') }}" class="nav-link">
                     <i class="bi bi-search"></i> Public Directory
@@ -166,6 +281,7 @@
                 </a>
                 <a href="{{ route('business-owner.fees.index') }}" class="nav-link {{ request()->routeIs('business-owner.fees.*') ? 'active' : '' }}">
                     <i class="bi bi-credit-card"></i> Fees
+                    @if(($navigationBadges['fees'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['fees'] }}</span>@endif
                 </a>
             @endif
 
@@ -177,18 +293,23 @@
                 <div class="nav-section">Management</div>
                 <a href="{{ route('admin.businesses.index') }}" class="nav-link {{ request()->routeIs('admin.businesses.*') ? 'active' : '' }}">
                     <i class="bi bi-clipboard-check"></i> Applications
+                    @if(($navigationBadges['applications'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['applications'] }}</span>@endif
                 </a>
                 <a href="{{ route('admin.business-profiles.index') }}" class="nav-link {{ request()->routeIs('admin.business-profiles.*') ? 'active' : '' }}">
                     <i class="bi bi-shop"></i> Directory Listings
+                    @if(($navigationBadges['profiles'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['profiles'] }}</span>@endif
                 </a>
                 <a href="{{ route('admin.staff.index') }}" class="nav-link {{ request()->routeIs('admin.staff.*', 'admin.staff-documents.*') ? 'active' : '' }}">
                     <i class="bi bi-person-badge"></i> Staff Clearance
+                    @if(($navigationBadges['staff'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['staff'] }}</span>@endif
                 </a>
                 <a href="{{ route('admin.renewals.index') }}" class="nav-link {{ request()->routeIs('admin.renewals.*') ? 'active' : '' }}">
                     <i class="bi bi-arrow-repeat"></i> Renewals
+                    @if(($navigationBadges['renewals'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['renewals'] }}</span>@endif
                 </a>
                 <a href="{{ route('admin.fees.index') }}" class="nav-link {{ request()->routeIs('admin.fees.*') ? 'active' : '' }}">
                     <i class="bi bi-credit-card"></i> Fees
+                    @if(($navigationBadges['fees'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['fees'] }}</span>@endif
                 </a>
             @endif
 
@@ -200,6 +321,7 @@
                 <div class="nav-section">Administration</div>
                 <a href="{{ route('super-admin.users.index') }}" class="nav-link {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">
                     <i class="bi bi-people"></i> Users
+                    @if(($navigationBadges['users'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['users'] }}</span>@endif
                 </a>
                 <a href="{{ route('super-admin.sectors.index') }}" class="nav-link {{ request()->routeIs('super-admin.sectors.*') ? 'active' : '' }}">
                     <i class="bi bi-grid"></i> Sectors
@@ -210,20 +332,35 @@
                 <a href="{{ route('super-admin.publications.index') }}" class="nav-link {{ request()->routeIs('super-admin.publications.*') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark-richtext"></i> Publications
                 </a>
-                <a href="{{ route('admin.business-profiles.index') }}" class="nav-link {{ request()->routeIs('admin.business-profiles.*') ? 'active' : '' }}">
-                    <i class="bi bi-shop"></i> Directory Listings
-                </a>
                 <a href="{{ route('super-admin.document-types.index') }}" class="nav-link {{ request()->routeIs('super-admin.document-types.*') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark"></i> Document Types
                 </a>
                 <a href="{{ route('super-admin.staff-document-types.index') }}" class="nav-link {{ request()->routeIs('super-admin.staff-document-types.*') ? 'active' : '' }}">
                     <i class="bi bi-person-vcard"></i> Staff Document Types
                 </a>
-                <a href="{{ route('admin.staff.index') }}" class="nav-link {{ request()->routeIs('admin.staff.*', 'admin.staff-documents.*') ? 'active' : '' }}">
-                    <i class="bi bi-person-badge"></i> Staff Clearance
-                </a>
                 <a href="{{ route('super-admin.agencies.index') }}" class="nav-link {{ request()->routeIs('super-admin.agencies.*') ? 'active' : '' }}">
                     <i class="bi bi-building"></i> Agencies
+                </a>
+                <div class="nav-section">Registry Operations</div>
+                <a href="{{ route('admin.businesses.index') }}" class="nav-link {{ request()->routeIs('admin.businesses.*') ? 'active' : '' }}">
+                    <i class="bi bi-clipboard-check"></i> Applications
+                    @if(($navigationBadges['applications'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['applications'] }}</span>@endif
+                </a>
+                <a href="{{ route('admin.business-profiles.index') }}" class="nav-link {{ request()->routeIs('admin.business-profiles.*') ? 'active' : '' }}">
+                    <i class="bi bi-shop"></i> Directory Listings
+                    @if(($navigationBadges['profiles'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['profiles'] }}</span>@endif
+                </a>
+                <a href="{{ route('admin.staff.index') }}" class="nav-link {{ request()->routeIs('admin.staff.*', 'admin.staff-documents.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-badge"></i> Staff Clearance
+                    @if(($navigationBadges['staff'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['staff'] }}</span>@endif
+                </a>
+                <a href="{{ route('admin.renewals.index') }}" class="nav-link {{ request()->routeIs('admin.renewals.*') ? 'active' : '' }}">
+                    <i class="bi bi-arrow-repeat"></i> Renewals
+                    @if(($navigationBadges['renewals'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['renewals'] }}</span>@endif
+                </a>
+                <a href="{{ route('admin.fees.index') }}" class="nav-link {{ request()->routeIs('admin.fees.*') ? 'active' : '' }}">
+                    <i class="bi bi-credit-card"></i> Fees
+                    @if(($navigationBadges['fees'] ?? 0) > 0)<span class="badge nav-count">{{ $navigationBadges['fees'] }}</span>@endif
                 </a>
                 <div class="nav-section">System</div>
                 <a href="{{ route('super-admin.settings.index') }}" class="nav-link {{ request()->routeIs('super-admin.settings.*') ? 'active' : '' }}">

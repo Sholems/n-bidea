@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\Models\AuditLog;
 use App\Models\Business;
 use App\Models\BusinessDocument;
+use App\Models\BusinessProfile;
+use App\Models\Fee;
+use App\Models\RenewalRequest;
 use App\Models\StaffMember;
 use App\Models\User;
 use App\Policies\AuditLogPolicy;
@@ -16,8 +19,10 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\View\View as ViewInstance;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
+        $this->configureDashboardNavigation();
 
         Gate::policy(Business::class, BusinessPolicy::class);
         Gate::policy(BusinessDocument::class, BusinessDocumentPolicy::class);
@@ -56,5 +62,49 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('inquiries', fn (Request $request) => Limit::perMinute(10)
             ->by($request->user()?->id ?: $request->ip()));
+    }
+
+    private function configureDashboardNavigation(): void
+    {
+        View::composer('layouts.dashboard', function (ViewInstance $view): void {
+            $user = auth()->user();
+            $badges = [];
+
+            if ($user?->role === 'business_owner') {
+                $businessIds = $user->businesses()->pluck('id');
+                $badges = [
+                    'businesses' => Business::whereIn('id', $businessIds)->where('status', 'correction_required')->count(),
+                    'fees' => Fee::whereIn('business_id', $businessIds)->where('payment_status', 'unpaid')->count(),
+                ];
+            }
+
+            if ($user?->role === 'admin') {
+                $badges = $this->administrativeNavigationBadges();
+            }
+
+            if ($user?->role === 'super_admin') {
+                $badges = $this->administrativeNavigationBadges() + [
+                    'verification' => Business::where('status', 'approved')->count(),
+                    'users' => User::where('account_status', 'pending')->count(),
+                ];
+            }
+
+            $view->with('navigationBadges', $badges);
+        });
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function administrativeNavigationBadges(): array
+    {
+        return [
+            'applications' => Business::whereIn('status', ['submitted', 'under_review'])->count(),
+            'profiles' => BusinessProfile::where('status', 'pending')->count(),
+            'documents' => BusinessDocument::where('status', 'pending')->count(),
+            'staff' => StaffMember::where('status', 'submitted')->count(),
+            'renewals' => RenewalRequest::where('status', 'pending')->count(),
+            'fees' => Fee::where('payment_status', 'pending_confirmation')->count(),
+        ];
     }
 }

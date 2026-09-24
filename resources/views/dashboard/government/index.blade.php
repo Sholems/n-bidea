@@ -1,102 +1,95 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Government Official Dashboard')
+@section('page-title', 'Government Official Dashboard')
 
 @section('content')
-<h1 class="h3 mb-2">Government Official Dashboard</h1>
-<p class="text-muted mb-4">Welcome back, {{ auth()->user()->name }}. Use the tools below to verify businesses and staff, and review your check history.</p>
-
-<div class="row g-3 mb-4">
-    <div class="col-md">
-        <div class="card text-bg-primary h-100">
-            <div class="card-body">
-                <h6 class="card-title text-uppercase opacity-75">Checks Today</h6>
-                <h2 class="mb-0">{{ $counts['today'] }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md">
-        <div class="card text-bg-info h-100">
-            <div class="card-body">
-                <h6 class="card-title text-uppercase opacity-75">Checks This Week</h6>
-                <h2 class="mb-0">{{ $counts['this_week'] }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md">
-        <div class="card text-bg-secondary h-100">
-            <div class="card-body">
-                <h6 class="card-title text-uppercase opacity-75">Total Checks</h6>
-                <h2 class="mb-0">{{ $counts['total'] }}</h2>
-            </div>
-        </div>
+<div class="dashboard-heading">
+    <div>
+        <h1>Verification Workspace</h1>
+        <p class="text-muted mb-0">{{ auth()->user()->agency->name ?? 'Government Official' }} · Search authorized business and staff records.</p>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-5 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Business and Staff Search</h5>
+<div class="card mb-4">
+    <div class="card-body p-4">
+        <form action="{{ route('government.search.execute') }}" method="POST">
+            @csrf
+            <label for="dashboard_query" class="form-label fw-semibold">Business and staff search</label>
+            <div class="input-group input-group-lg">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="search" name="query" id="dashboard_query" class="form-control" placeholder="Registry number, business name, staff number, NIN, or passport number" maxlength="255" required autofocus>
+                <button type="submit" class="btn btn-primary px-4">Search Records</button>
             </div>
-            <div class="card-body">
-                <form action="{{ route('government.search.execute') }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="query" class="form-label">Search by business name, registry number, staff name, or staff number</label>
-                        <input type="text" name="query" id="query" class="form-control" placeholder="Enter search term..." required autofocus>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search me-1"></i> Search
-                    </button>
-                </form>
-            </div>
-        </div>
+            <div class="form-text">Every sensitive record view is recorded in the audit trail.</div>
+        </form>
     </div>
+</div>
 
-    <div class="col-lg-7 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Checks</h5>
-            </div>
-            <div class="card-body p-0">
-                @if($recentChecks->isNotEmpty())
-                @php
-                    $actionLabels = [
-                        'government_verification_check' => ['label' => 'Verification recorded', 'color' => 'success'],
-                        'government_view_business' => ['label' => 'Business viewed', 'color' => 'info'],
-                        'government_view_staff' => ['label' => 'Staff viewed', 'color' => 'primary'],
-                    ];
-                @endphp
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
+<div class="metric-grid">
+    <div class="metric-tile metric-tile--success">
+        <div class="metric-tile__top"><span class="metric-tile__label">Checks Recorded Today</span><i class="bi bi-shield-check metric-tile__icon"></i></div>
+        <div class="metric-tile__value">{{ $counts['checks_today'] }}</div>
+        <small class="text-muted">Explicit verification records</small>
+    </div>
+    <div class="metric-tile">
+        <div class="metric-tile__top"><span class="metric-tile__label">Checks This Week</span><i class="bi bi-calendar-week metric-tile__icon"></i></div>
+        <div class="metric-tile__value">{{ $counts['checks_this_week'] }}</div>
+        <small class="text-muted">Since {{ now()->startOfWeek()->format('d M') }}</small>
+    </div>
+    <div class="metric-tile">
+        <div class="metric-tile__top"><span class="metric-tile__label">Lookups Today</span><i class="bi bi-eye metric-tile__icon"></i></div>
+        <div class="metric-tile__value">{{ $counts['lookups_today'] }}</div>
+        <small class="text-muted">Business and staff records viewed</small>
+    </div>
+    <div class="metric-tile">
+        <div class="metric-tile__top"><span class="metric-tile__label">All Recorded Checks</span><i class="bi bi-journal-check metric-tile__icon"></i></div>
+        <div class="metric-tile__value">{{ $counts['checks_total'] }}</div>
+        <small class="text-muted">{{ $counts['lookups_total'] }} total lookups</small>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">Recent Verification Activity</h2>
+        <a href="{{ route('government.search') }}" class="btn btn-sm btn-outline-primary">Advanced Search</a>
+    </div>
+    <div class="card-body p-0">
+        @if($recentActivity->isNotEmpty())
+            @php
+                $actionLabels = [
+                    'government_verification_check' => ['label' => 'Check recorded', 'color' => 'success', 'icon' => 'bi-shield-check'],
+                    'government_view_business' => ['label' => 'Business lookup', 'color' => 'info', 'icon' => 'bi-building'],
+                    'government_view_staff' => ['label' => 'Staff lookup', 'color' => 'primary', 'icon' => 'bi-person-badge'],
+                ];
+            @endphp
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Record</th><th>Activity</th><th>Date</th><th class="text-end">Action</th></tr></thead>
+                    <tbody>
+                        @foreach($recentActivity as $activity)
+                            @php
+                                $meta = $actionLabels[$activity->action] ?? ['label' => $activity->action, 'color' => 'secondary', 'icon' => 'bi-clock-history'];
+                                $recordUrl = $activity->auditable instanceof \App\Models\Business
+                                    ? route('government.businesses.show', $activity->auditable)
+                                    : ($activity->auditable instanceof \App\Models\StaffMember ? route('government.staff.show', $activity->auditable) : null);
+                            @endphp
                             <tr>
-                                <th>Description</th>
-                                <th>Type</th>
-                                <th>Date</th>
+                                <td>{{ $activity->description ?? 'Verification activity' }}</td>
+                                <td><span class="badge bg-{{ $meta['color'] }}"><i class="bi {{ $meta['icon'] }} me-1"></i>{{ $meta['label'] }}</span></td>
+                                <td class="text-nowrap">{{ $activity->created_at->format('d M Y, H:i') }}</td>
+                                <td class="text-end">@if($recordUrl)<a href="{{ $recordUrl }}" class="btn btn-sm btn-outline-primary">Open</a>@else<span class="text-muted">—</span>@endif</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($recentChecks as $check)
-                            @php $meta = $actionLabels[$check->action] ?? ['label' => $check->action, 'color' => 'secondary']; @endphp
-                            <tr>
-                                <td>{{ $check->description ?? 'N/A' }}</td>
-                                <td><span class="badge bg-{{ $meta['color'] }}">{{ $meta['label'] }}</span></td>
-                                <td>{{ $check->created_at->format('d M Y H:i') }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <div class="text-center py-5">
-                    <i class="bi bi-search fs-1 text-muted"></i>
-                    <p class="text-muted mt-3 mb-0">No verification checks performed yet.</p>
-                </div>
-                @endif
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-        </div>
+        @else
+            <div class="text-center py-5">
+                <i class="bi bi-search fs-1 text-muted"></i>
+                <p class="text-muted mt-3 mb-0">Search for a business or staff member to begin.</p>
+            </div>
+        @endif
     </div>
 </div>
 @endsection
